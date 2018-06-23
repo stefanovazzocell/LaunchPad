@@ -14,15 +14,15 @@ const app = express();
 /*
 * Require Settings
 */
-const { port } = require('./config/general');
+var { port } = require('./config/general');
 
 /*
 * Require custom modules
 */
 const dbmanager = require('./scraps/dbmanager'); // Database manager
-const serveradmin = require('./scraps/ipresolver'); // Resolve ip
+const ipresolver = require('./scraps/ipresolver'); // Resolve ip
 const gatekeeper = require('./scraps/gatekeeper'); // Rate limiting
-const serveradmin = require('./scraps/serveradmin'); // Server Admin Tools
+const server = require('./scraps/serveradmin'); // Server Admin Tools
 
 /*
 * Routes
@@ -39,6 +39,8 @@ app.post('/', function (req, res) {
 
 // Update port if necessary
 port = process.env.PORT || port;
+// Perform checks
+server.checks(dbmanager);
 
 // Start server
 app.listen(port);
