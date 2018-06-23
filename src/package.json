@@ -7,6 +7,7 @@
 		"start": "node launchpad.js"
 	},
 	"dependencies": {
+		"express": "^4.16.3"
 	},
 	"engines": {
 		"node": "8.0.0"
@@ -20,7 +21,6 @@
 		"shortener"
 	],
 	"author": "Stefano Vazzoler <stefano@stefanovazzoler.com> (https://stefanovazzoler.com)",
-	"contributors": [
-	],
+	"contributors": [],
 	"license": "Apache 2.0"
 }
