@@ -1,0 +1,6 @@
+{
+	"use_connection_ip": false,
+	"use_proxy": true,
+	"user_cloudflare": true,
+	"priority": ["cloudflare", "proxy"]
+}
