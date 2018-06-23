@@ -1,0 +1,26 @@
+{
+	"name": "launchpad",
+	"version": "0.1.0",
+	"description": "Rocket's Back-end Server",
+	"main": "launchpad.js",
+	"scripts": {
+		"start": "node launchpad.js"
+	},
+	"dependencies": {
+	},
+	"engines": {
+		"node": "8.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/stefanovazzocell/LaunchPad"
+	},
+	"keywords": [
+		"nodejs",
+		"shortener"
+	],
+	"author": "Stefano Vazzoler <stefano@stefanovazzoler.com> (https://stefanovazzoler.com)",
+	"contributors": [
+	],
+	"license": "Apache 2.0"
+}
