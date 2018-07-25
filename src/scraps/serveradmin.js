@@ -33,7 +33,8 @@ function checkArgs() {
 	});
 	// Require Settings if not available
 	if (typeof isDev === "undefined") {
-		const { isDev } = require('./../config/admin');
+		const { initIsDev } = require('./../config/admin');
+		const isDev = initIsDev;
 	}
 }
 
