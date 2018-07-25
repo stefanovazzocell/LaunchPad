@@ -1,3 +1,4 @@
+'use strict';
 /*
 * LaunchPad (Version 0.1.0)
 * gatekeeper.js - Rate limiting utility

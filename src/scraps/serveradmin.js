@@ -1,3 +1,4 @@
+'use strict';
 /*
 * LaunchPad (Version 0.1.0)
 * serveradmin.js - Logging and utilities for the server admin
