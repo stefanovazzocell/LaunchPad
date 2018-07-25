@@ -8,6 +8,8 @@
 // Require Initial Settings
 const { initIsDev } = require('./../config/admin');
 
+var isDev = "init";
+
 /*
 * checkArgs() - checks if there are some special arguments passed
 */
@@ -16,26 +18,39 @@ function checkArgs() {
 		switch (val) {
 			case 'dev':
 				if (initIsDev) {
-					msg('Mode is development', 'warning');
-					const isDev = true;
+					msg('Mode is set to development', 'warning');
+					isDev = true;
 				} else {
 					msg('Mode forced to production (based on settings)');
-					const isDev = false;
+					isDev = false;
 				}
 				break;
 			case 'prod':
 				msg('Changed mode to production', 'warning');
-				const isDev = false;
+				isDev = false;
 				break;
 			default:
 				msg('Unrecognized argument: ' + val, 'warning');
 		}
 	});
 	// Require Settings if not available
-	if (typeof isDev === "undefined") {
-		const { initIsDev } = require('./../config/admin');
-		const isDev = initIsDev;
+	if (isDev === "init") {
+		isDev = initIsDev;
+		if (isDev) {
+			msg('Mode is (init) development', 'warning');
+		} else {
+			msg('Mode is (init) production', 'info');
+		}
 	}
+}
+
+/*
+* modeIsDev() - produces if the mode is in development
+*
+* @returns true if the move is dev else otherwise
+*/
+function modeIsDev() {
+	return isDev === "init" ? false : isDev
 }
 
 /*
@@ -87,5 +102,5 @@ module.exports = {
 		}
 	},
 	/* Vars */
-	isDev: typeof isDev === "undefined" ? false : isDev
+	isDev: modeIsDev
 }
