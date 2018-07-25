@@ -5,6 +5,9 @@
 * https://stefanovazzoler.com/
 */
 
+// Require Initial Settings
+const { initIsDev } = require('./../config/admin');
+
 /*
 * checkArgs() - checks if there are some special arguments passed
 */
@@ -12,9 +15,16 @@ function checkArgs() {
 	process.argv.forEach(function (val, index, array) {
 		switch (val) {
 			case 'dev':
-				const isDev = true;
+				if (initIsDev) {
+					msg('Mode is development', 'warning');
+					const isDev = true;
+				} else {
+					msg('Mode forced to production (based on settings)');
+					const isDev = false;
+				}
 				break;
 			case 'prod':
+				msg('Changed mode to production', 'warning');
 				const isDev = false;
 				break;
 			default:
