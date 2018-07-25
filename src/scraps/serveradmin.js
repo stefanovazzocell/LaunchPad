@@ -5,9 +5,6 @@
 * https://stefanovazzoler.com/
 */
 
-// Require Settings
-const { isDev } = require('./../config/admin');
-
 /*
 * checkArgs() - checks if there are some special arguments passed
 */
@@ -15,15 +12,19 @@ function checkArgs() {
 	process.argv.forEach(function (val, index, array) {
 		switch (val) {
 			case 'dev':
-				isDev = true;
+				const isDev = true;
 				break;
 			case 'prod':
-				isDev = false;
+				const isDev = false;
 				break;
 			default:
 				msg('Unrecognized argument: ' + val, 'warning');
 		}
 	});
+	// Require Settings if not available
+	if (typeof isDev === "undefined") {
+		const { isDev } = require('./../config/admin');
+	}
 }
 
 /*
@@ -33,7 +34,7 @@ function checkArgs() {
 * @requires type (optional) string type of message ['error','log','warning', ...]
 */
 function msg(message, type='error') {
-	if (isDev) {
+	if (typeof isDev === "undefined" ? false : isDev) {
 		message = (new Date()).toString() + ' - ' + message;
 		if (type == 'log' || type == 'info') {
 			console.log(message);
@@ -75,5 +76,7 @@ module.exports = {
 				process.exit(202);
 			}
 		}
-	}
+	},
+	/* Vars */
+	isDev: typeof isDev === "undefined" ? false : isDev
 }
