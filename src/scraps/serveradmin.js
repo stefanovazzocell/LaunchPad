@@ -44,14 +44,12 @@ function checkArgs() {
 * @requires type (optional) string type of message ['error','log','warning', ...]
 */
 function msg(message, type='error') {
-	if (typeof isDev === "undefined" ? false : isDev) {
-		message = (new Date()).toString() + ' - ' + message;
-		if (type == 'log' || type == 'info') {
-			console.log(message);
-		} else if (type == 'warning' || type == 'warn') {
-			console.warn(message);
-		} else console.error(message);
-	}
+	message = (new Date()).toString() + ' - ' + message;
+	if (type == 'log' || type == 'info') {
+		console.log(message);
+	} else if (type == 'warning' || type == 'warn') {
+		console.warn(message);
+	} else console.error(message);
 }
 
 // Make checks accessible
