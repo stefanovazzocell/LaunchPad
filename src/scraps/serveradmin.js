@@ -26,6 +26,23 @@ function checkArgs() {
 	});
 }
 
+/*
+* msg(message, type) - prints a message on the console if isDev
+*
+* @requires msg string containing the message
+* @requires type (optional) string type of message ['error','log','warning', ...]
+*/
+function msg(message, type='error') {
+	if (isDev) {
+		message = (new Date()).toString() + ' - ' + message;
+		if (type == 'log' || type == 'info') {
+			console.log(message);
+		} else if (type == 'warning' || type == 'warn') {
+			console.warn(message);
+		} else console.error(message);
+	}
+}
+
 // Make checks accessible
 module.exports = {
 	/*
@@ -34,16 +51,7 @@ module.exports = {
 	* @requires msg string containing the message
 	* @requires type (optional) string type of message ['error','log','warning', ...]
 	*/
-	msg: function (message, type='error') {
-		if (isDev) {
-			message = (new Date()).toString() + ' - ' + message;
-			if (type == 'log' || type == 'info') {
-				console.log(message);
-			} else if (type == 'warning' || type == 'warn') {
-				console.warn(message);
-			} else console.error(message);
-		}
-	},
+	msg: msg,
 	/*
 	* checks(db) - Performs multiple systems checks and tries to resolve issues
 	*
@@ -51,7 +59,7 @@ module.exports = {
 	*/
 	checks: function (db) {
 		// Check for arguments
-		this.checkArgs();
+		checkArgs();
 		// Check the database connection
 		if (! db.connectionCheck(db)) {
 			msg('DB Connection Error');
