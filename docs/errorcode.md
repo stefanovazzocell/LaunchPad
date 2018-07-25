@@ -1,4 +1,4 @@
-Here is a list of LaunchPad error codes:
+Here is a list of LaunchPad's error codes:
 
  Code | Feature  | Error |
 :----:| -------- | ----- |
