@@ -1,10 +1,10 @@
 {
 	"points": {
-		"start": +200,
+		"start": 200,
 		"query": -1,
-		"validLink": -1,
-		"invalidLink": -40,
-		"validCreateLink": -40,
+		"validLink": -2,
+		"invalidLink": -39,
+		"validCreateLink": -39,
 		"invalidCreateLink": -10
 	},
 	"resetTime": 1,
