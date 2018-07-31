@@ -129,8 +129,10 @@ module.exports = {
 	*/
 	autocheck: function (req, res, type) {
 		var ip = getIp(req);
-		var isBanned = !check(ip, type);
-		if (isBanned) {
+		if (check(ip, type)) {
+			// Continue execution
+			return true;
+		} else {
 			res.status(403);
 			if (isBanned(ip)) {
 				// Banned [ignore user]
@@ -143,8 +145,6 @@ module.exports = {
 			// Stop execution
 			return false;
 		}
-		// Continue execution
-		return true;
 	},
 	/*
 	* startup(msgfn, modeIsDev, getIp) - Starts up gatekeeper's resets
