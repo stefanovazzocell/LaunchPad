@@ -94,7 +94,7 @@ function resetBan() {
 * @requires type to be a valid string query on settings
 * @return true if user is allowed, false otherwise
 */
-function check(id = "unknown",type = "query") {
+function check(id = "unknown", type = "query") {
 	// Increase the counter for user
 	addToUser(id, points[type])
 	// Check if user is banned or maxed
@@ -130,7 +130,7 @@ module.exports = {
 	* @requires type to be a valid string query on settings
 	* @returns true if user is allowed, false otherwise
 	*/
-	autocheck: function (req, res, type) {
+	autocheck: function (req, res, type = "query") {
 		var ip = getIp(req);
 		if (check(ip, type)) {
 			// Continue execution
@@ -141,7 +141,7 @@ module.exports = {
 				// Banned [ignore user]
 			} else {
 				// Rate limited
-				res.send('Rate limited, try again later');
+				res.send({"msg": "Rate limited, try again later"});
 			}
 			// End connection
 			res.end();
