@@ -27,9 +27,10 @@ var msg = function (x, y = "") {
 function addToUser(id, value = -50) {
 	// Check if it's a new ID
 	if (! access.hasOwnProperty(id)) {
-		// 
+		// Add id to list and update value
 		access[id] = points["start"] + value;
 	} else {
+		// Update id value
 		access[id] += value;
 	}
 }
@@ -40,7 +41,7 @@ function addToUser(id, value = -50) {
 * @return true if banned, false otherwise
 */
 function isBanned(id) {
-	banned.includes(id);
+	return banned.includes(id);
 }
 
 /*
@@ -49,7 +50,7 @@ function isBanned(id) {
 * @return true if maxed, false otherwise
 */
 function isMaxed(id) {
-	// body...
+	return (access[id] < 0);
 }
 
 /*
@@ -58,7 +59,7 @@ function isMaxed(id) {
 * @return true if to be banned, false otherwise
 */
 function isToBeBanned(id) {
-	// body...
+	return (access[id] + bantrigger < 0);
 }
 
 /*
