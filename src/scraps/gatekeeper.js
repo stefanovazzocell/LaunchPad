@@ -145,7 +145,7 @@ module.exports = {
 		}
 		// Continue execution
 		return true;
-	}
+	},
 	/*
 	* startup(msgfn, modeIsDev, getIp) - Starts up gatekeeper's resets
 	*
