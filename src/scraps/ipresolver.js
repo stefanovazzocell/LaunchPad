@@ -16,7 +16,12 @@ var { use_connection_ip, use_proxy, use_cloudflare } = require('./config/ipresol
 * @returns ip string
 */
 function getCloudflare(req) {
-	// body...
+	// Check if Cloudflare header allowed and available
+	if (use_cloudflare && req.headers['cf-connecting-ip'] !== undefined) {
+		return req.headers['cf-connecting-ip'];
+	} else {
+		return getProxy(req);
+	}
 }
 
 /*
@@ -26,7 +31,12 @@ function getCloudflare(req) {
 * @returns ip string
 */
 function getProxy(req) {
-	// body...
+	// Check if proxy header allowed and available
+	if (use_proxy && req.headers['x-forwarded-for'] !== undefined) {
+		return req.headers['x-forwarded-for'];
+	} else {
+		return getRequest(req);
+	}
 }
 
 /*
@@ -36,7 +46,12 @@ function getProxy(req) {
 * @returns ip string
 */
 function getRequest(req) {
-	// body...
+	// Check if connection ip allowed
+	if (use_connection_ip) {
+		return req.connection.remoteAddress;
+	} else {
+		return "unknown";
+	}
 }
 
 // Make public function accessible
