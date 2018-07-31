@@ -7,7 +7,7 @@
 */
 
 // Require Config
-const { points, resetTime, banTime } = require('./../config/gatekeeper');
+const { points, resetTime, banTime, bantrigger } = require('./../config/gatekeeper');
 // NOTE: Bantime and ResetTime are in minutes
 
 // Users that are being 
@@ -15,13 +15,19 @@ var access = {};
 var banned = {};
 
 /*
-* addToUser(id, points) - Add (or remove) a given amount of points to an user
+* addToUser(id, value) - Add (or remove) a given amount of points to an user
 *
 * @requires id to be a user id string
-* @requires points to be a numeric value
+* @requires value to be a numeric value
 */
-function addToUser(id, points = -50) {
-	// body...
+function addToUser(id, value = -50) {
+	// Check if it's a new ID
+	if (! access.hasOwnProperty(id)) {
+		// 
+		access[id] = points["start"] + value;
+	} else {
+		access[id] += value;
+	}
 }
 
 /*
@@ -30,7 +36,7 @@ function addToUser(id, points = -50) {
 * @return true if banned, false otherwise
 */
 function isBanned(id) {
-	// body...
+	banned.hasOwnProperty(id);
 }
 
 /*
@@ -57,6 +63,39 @@ function isToBeBanned(id) {
 function ban(id) {
 	// body...
 }
+
+/*
+* resetAccess() - Resets Access DB
+*/
+function resetAccess() {
+	access = {};
+}
+
+/*
+* resetBan() - Resets Ban DB
+*/
+function resetBan() {
+	banned = {};
+}
+
+/*
+* startup() - Starts up gatekeeper's resets
+*/
+function startup() {
+	// At some random time (between 0 and 120 seconds) set ban timer
+	setTimeout(function () {
+		// Start Reset Ban Timer
+		setInterval(resetBan, banTime * 60);
+	}, (Math.random() * 120));
+	// At some random time (between 0 and 120 seconds) set access timer
+	setTimeout(function () {
+		// Start Reset Access Timer
+		setInterval(resetAccess, resetTime * 60);
+	}, (Math.random() * 120));
+}
+
+// Call Startup
+startup();
 
 // Making public functions available
 module.exports = {
