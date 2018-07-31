@@ -73,7 +73,7 @@ app.use(function (req, res, next) {
 * @requests res is a express response
 * @requests msg string to return the user
 */
-function requestError(res, msg) {
+function requestError(res, msg="Something is wrong with your request, try refreshing the page") {
 	res.status(400);
 	res.send({"msg": msg});
 }
@@ -112,17 +112,27 @@ app.post('/secure/', function (req, res) {
 });
 
 // API request
-app.post('/api/*/post', function (req, res) {
+app.post('/api/*', function (req, res) {
 	if (gatekeeper.autocheck(req, res)) {
 		// Check api version
 		if (req.params[0] === version + "/" || req.params[0] === version) {
 			// Valid version
 			try {
-				if (req.body.act !== undefined) {
-					res.send("defined");
-				} else {
-					res.status(501);
-					res.send({"msg": "Missing act"});
+				switch(req.body.type) {
+					case 'get': // Get a link
+						res.send("getting");
+						break;
+					case 'set': // Creating a new link
+						res.send("setting");
+						break;
+					case 'edit': // Edit a link
+						requestError(res, "Not action implemented yet");
+						break;
+					case 'stats': // Get stats for a link
+						requestError(res, "Not action implemented yet");
+						break;
+					default:
+						res.send("ok");
 				}
 			} catch(err) {
 				console.log(err)
@@ -135,21 +145,6 @@ app.post('/api/*/post', function (req, res) {
 			res.status(501);
 			res.send({"msg": "Version not supported"});
 		}	
-	}
-});
-
-// API Check
-app.post('/api/*', function (req, res) {
-	if (gatekeeper.autocheck(req, res)) {
-		// Check api version
-		if (req.params[0] === version + "/" || req.params[0] === version) {
-			// Valid version
-			res.send("ok")
-		} else {
-			// Invalid version message
-			res.status(501);
-			res.send({"msg": "Version not supported"});
-		}
 	}
 });
 
