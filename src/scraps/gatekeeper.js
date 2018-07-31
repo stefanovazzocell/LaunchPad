@@ -83,35 +83,38 @@ function resetBan() {
 	banned = [];
 }
 
+/*
+* check(id, type) - Counts visit and checks if user is allowed
+*
+* @requires id to be a user id string
+* @requires type to be a valid string query on settings
+* @return true if user is allowed, false otherwise
+*/
+function check (id = "unknown",type = "query") {
+	// Increase the counter for user
+	addToUser(id, points[type])
+	// Check if user is banned or maxed
+	if (isBanned(id)) {
+		return false;
+	} else if (isMaxed(id)) {
+		// Check if it is to be banned
+		if (isToBeBanned(id)) {
+			if (modeIsDev) {
+				msg("User \"" + id + "\" has been banned", "log");
+			} else {
+				msg("User has been banned", "log");
+			}
+			// Ban
+			ban(id);
+		}
+		return false;
+	}
+}
+
 // Making public functions available
 module.exports = {
-	/*
-	* check(id, type) - Counts visit and checks if user is allowed
-	*
-	* @requires id to be a user id string
-	* @requires type to be a valid string query on settings
-	* @return true if user is allowed, false otherwise
-	*/
-	check: function (id = "unknown",type = "query") {
-		// Increase the counter for user
-		addToUser(id, points[type])
-		// Check if user is banned or maxed
-		if (isBanned(id)) {
-			return false;
-		} else if (isMaxed(id)) {
-			// Check if it is to be banned
-			if (isToBeBanned(id)) {
-				if (modeIsDev) {
-					msg("User \"" + id + "\" has been banned", "log");
-				} else {
-					msg("User has been banned", "log");
-				}
-				// Ban
-				ban(id);
-			}
-			return false;
-		}
-	},
+	// Passthrough for check
+	check: check,
 	/*
 	* startup(msgfn, modeIsDev) - Starts up gatekeeper's resets
 	*
