@@ -103,7 +103,7 @@ function check(id = "unknown",type = "query") {
 	} else if (isMaxed(id)) {
 		// Check if it is to be banned
 		if (isToBeBanned(id)) {
-			if (modeIsDev) {
+			if (isDev) {
 				msg("User \"" + id + "\" has been banned", "log");
 			} else {
 				msg("User has been banned", "log");
@@ -112,6 +112,9 @@ function check(id = "unknown",type = "query") {
 			ban(id);
 		}
 		return false;
+	} else {
+		// All clear
+		return true;
 	}
 }
 
@@ -165,13 +168,13 @@ module.exports = {
 		setTimeout(function () {
 			// Start Reset Ban Timer
 			setInterval(resetBan, banTime * 60 * 1000);
-			if (modeIsDev) msg("Started resetBan interval", "log");
+			if (isDev) msg("Started resetBan interval", "log");
 		}, (Math.random() * random * 1000));
 		// At some random time (between 0 and 120 seconds) set access timer
 		setTimeout(function () {
 			// Start Reset Access Timer
 			setInterval(resetAccess, resetTime * 60 * 1000);
-			if (modeIsDev) msg("Started resetAccess interval", "log");
+			if (isDev) msg("Started resetAccess interval", "log");
 		}, (Math.random() * random * 1000));
 		msg("Startup of gatekeeper initiated", "log");
 	}
