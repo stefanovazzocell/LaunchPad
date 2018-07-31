@@ -8,5 +8,6 @@
 		"invalidCreateLink": -10
 	},
 	"resetTime": 1,
-	"banTime": 10
+	"banTime": 10,
+	"bantrigger": 40
 }
