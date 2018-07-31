@@ -122,18 +122,21 @@ module.exports = {
 		// Save the msg utility and the mode
 		msg = msgfn;
 		isDev = modeIsDev;
+		// Initialize random component
+		var random = 120
+		if (isDev) random = 2;
 		// At some random time (between 0 and 120 seconds) set ban timer
 		setTimeout(function () {
 			// Start Reset Ban Timer
 			setInterval(resetBan, banTime * 60 * 1000);
 			if (modeIsDev) msg("Started resetBan interval", "log");
-		}, (Math.random() * 120 * 1000));
+		}, (Math.random() * random * 1000));
 		// At some random time (between 0 and 120 seconds) set access timer
 		setTimeout(function () {
 			// Start Reset Access Timer
 			setInterval(resetAccess, resetTime * 60 * 1000);
 			if (modeIsDev) msg("Started resetAccess interval", "log");
-		}, (Math.random() * 120 * 1000));
+		}, (Math.random() * random * 1000));
 		msg("Startup of gatekeeper initiated", "log");
 	}
 }
