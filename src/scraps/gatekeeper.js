@@ -17,6 +17,10 @@ var isDev = false;
 var msg = function (x, y = "") {
 	// Call startup to setup
 }
+var getIp = function (x) {
+	// Call startup to setup
+	return "uninitialized";
+}
 
 /*
 * addToUser(id, value) - Add (or remove) a given amount of points to an user
@@ -90,7 +94,7 @@ function resetBan() {
 * @requires type to be a valid string query on settings
 * @return true if user is allowed, false otherwise
 */
-function check (id = "unknown",type = "query") {
+function check(id = "unknown",type = "query") {
 	// Increase the counter for user
 	addToUser(id, points[type])
 	// Check if user is banned or maxed
@@ -116,15 +120,44 @@ module.exports = {
 	// Passthrough for check
 	check: check,
 	/*
-	* startup(msgfn, modeIsDev) - Starts up gatekeeper's resets
+	* autocheck(req, res, type) - Check if user allowed, auto ban otherwise
+	*
+	* @requires req to be a valid express request
+	* @requires res to be a valid express response
+	* @requires type to be a valid string query on settings
+	* @returns true if user is allowed, false otherwise
+	*/
+	autocheck: function (req, res, type) {
+		var ip = getIp(req);
+		var isBanned = !check(ip, type);
+		if (isBanned) {
+			res.status(403);
+			if (isBanned(ip)) {
+				// Banned [ignore user]
+			} else {
+				// Rate limited
+				res.send('Rate limited, try again later');
+			}
+			// End connection
+			res.end();
+			// Stop execution
+			return false;
+		}
+		// Continue execution
+		return true;
+	}
+	/*
+	* startup(msgfn, modeIsDev, getIp) - Starts up gatekeeper's resets
 	*
 	* @requires msgfn to be a msg utility from serveradmin.js package
 	* @requires modeIsDev to be a bool indicating if is in development mode
+	* @requires getIpUtil to be a getIp utility from ipresolver.js package
 	*/
-	startup: function (msgfn, modeIsDev) {
-		// Save the msg utility and the mode
+	startup: function (msgfn, modeIsDev, getIpUtil) {
+		// Save the msg & getIpUtil utility and the mode
 		msg = msgfn;
 		isDev = modeIsDev;
+		getIp = getIpUtil;
 		// Initialize random component
 		var random = 120
 		if (isDev) random = 2;
