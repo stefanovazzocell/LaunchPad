@@ -65,6 +65,20 @@ app.use(function (req, res, next) {
 });
 
 /*
+* Local helpers
+*/
+/*
+* requestError(res, msg) - Sends a 400 error
+*
+* @requests res is a express response
+* @requests msg string to return the user
+*/
+function requestError(res, msg) {
+	res.status(400);
+	res.send({"msg": msg});
+}
+
+/*
 * Routes
 */
 
@@ -104,7 +118,12 @@ app.post('/api/*/post', function (req, res) {
 		if (req.params[0] === version + "/" || req.params[0] === version) {
 			// Valid version
 			try {
-				// ...
+				if (req.body.act !== undefined) {
+					res.send("defined");
+				} else {
+					res.status(501);
+					res.send({"msg": "Missing act"});
+				}
 			} catch(err) {
 				console.log(err)
 				// Invalid version message
