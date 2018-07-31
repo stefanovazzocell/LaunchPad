@@ -7,7 +7,7 @@
 */
 
 // Load config
-var { use_connection_ip, use_proxy, use_cloudflare } = require('./config/ipresolver');
+var { use_connection_ip, use_proxy, use_cloudflare } = require('./../config/ipresolver');
 
 /*
 * getCloudflare(req) - gets the ip from cloudflare if allowed or the next available option
