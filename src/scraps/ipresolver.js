@@ -54,8 +54,20 @@ function getRequest(req) {
 	}
 }
 
+/*
+* getCfCountry(req) - gets the country code from Cloudflare header or "??" for unknown
+*
+* @requires req to be a valid express request
+* @returns country code string as for |ISO 3166-1 Alpha 2| or "??" if unknown
+*/
+function getCfCountry(req) {
+	return req.headers("HTTP_CF_IPCOUNTRY") || "??";
+}
+
 // Make public function accessible
 module.exports = {
 	// When the users requires an ip, start looking for cloudflare
-	getIp: getCloudflare
+	getIp: getCloudflare,
+	// If the users requests the country of origin, check Cloudflare response
+	getLocation: getCfCountry
 }
