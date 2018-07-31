@@ -6,16 +6,48 @@
 * https://stefanovazzoler.com/
 */
 
+// Require Dependencies
+var mysql = require('mysql');
+
+// Load credentials
+var dbConnection = mysql.createConnection({
+	"host": "localhost", // TODO: Change this
+	"user": "root",		 // TODO: Change this
+	"password": "root"	 // TODO: Change this
+});
+
+// Prepare variables
+var msg = function (x, y = "") {
+	// Call startup to setup
+}
+
+/*
+* query() - Query DB
+* 
+* @return boolean - true if connection successful, false otherwise
+*/
+function query() {
+	// body...
+}
+
 // Make modules accessible
 module.exports = {
 	/*
-	* dbConnectionCheck() - Performs a database connection check
+	* dbConnectionCheck(msgfn) - Performs a database connection check
 	* 
+	* @requires msgfn to be a msg utility from serveradmin.js package
 	* @return boolean - true if connection successful, false otherwise
 	*/
-	connectionCheck: function () {
+	connectionCheck: function (msgfn) {
+		// Save the msg & getIpUtil utility and the mode
+		msg = msgfn;
 		// Perform database connection check
-		return true; // TODO
+		dbConnection.connect(function(err) {
+			if (err) {
+				msg(err);
+			}
+			msg("Connected to the database successfully", "log");
+		});
 	},
 	/*
 	* dbCheck() - Performs a database check
