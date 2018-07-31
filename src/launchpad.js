@@ -1,3 +1,4 @@
+'use strict';
 /*
 * LaunchPad (Version 0.1.0)
 * launchpad.js - main server fuction
@@ -8,39 +9,146 @@
 /*
 * Require Node dependencies
 */
-const express = require('express');
-const app = express();
 
-/*
-* Require Settings
-*/
-var { port } = require('./config/general');
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
 
 /*
 * Require custom modules
 */
+
 const dbmanager = require('./scraps/dbmanager'); // Database manager
 const ipresolver = require('./scraps/ipresolver'); // Resolve ip
 const gatekeeper = require('./scraps/gatekeeper'); // Rate limiting
 const server = require('./scraps/serveradmin'); // Server Admin Tools
 
 /*
-* Routes
+* Require Settings
 */
-app.get('*', function (req, res) {
-	// Get requests not allowed
-	res.status(405);
-	res.send('GET Requests not allowed');
-});
 
-app.post('/', function (req, res) {
-	res.send('ok');
-});
+var { port, version } = require('./config/general');
+
+/*
+* Perform initial checks
+*/
 
 // Update port if necessary
-port = process.env.PORT || port;
+port = process.env.PORT || port || 8080;
+// Startup gatekeeper
+gatekeeper.startup(server.msg, server.isDev, ipresolver.getIp)
 // Perform checks
 server.checks(dbmanager);
 
+/*
+* Linking dependencies
+*/
+app.use(bodyParser.json());
+
+/*
+* Adding headers
+*/
+app.use(function (req, res, next) {
+	// If the server is in development
+	if (server.isDev) {
+		// Allow any origin
+		res.setHeader('Access-Control-Allow-Origin', '*');
+		// Allow GET and POST
+		res.setHeader('Access-Control-Allow-Methods', 'POST');
+		// Disable cookies
+		res.setHeader('Access-Control-Allow-Credentials', false);
+		// Allow given Headers
+		res.header('Access-Control-Allow-Headers', '*');
+	}
+	// Pass to next layer of middleware
+	next();
+});
+
+/*
+* Routes
+*/
+
+// GET not allowed
+app.get('*', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		// Get requests not allowed
+		res.status(405);
+		res.send('GET Requests not allowed');
+	}
+});
+
+// HelloWorld
+app.post('/', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		res.send('ok');
+	}
+});
+
+// Is secure?
+app.post('/secure/', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		if (server.isDev) {
+			// Server is in development mode
+			res.send('no');
+		} else {
+			// Server is in production
+			res.send('yes');
+		}
+	}
+});
+
+// API request
+app.post('/api/*/post', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		// Check api version
+		if (req.params[0] === version + "/" || req.params[0] === version) {
+			// Valid version
+			try {
+				// ...
+			} catch(err) {
+				console.log(err)
+				// Invalid version message
+				res.status(500);
+				res.send({"msg": "Corrupted request"});
+			}
+		} else {
+			// Invalid version message
+			res.status(501);
+			res.send({"msg": "Version not supported"});
+		}	
+	}
+});
+
+// API Check
+app.post('/api/*', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		// Check api version
+		if (req.params[0] === version + "/" || req.params[0] === version) {
+			// Valid version
+			res.send("ok")
+		} else {
+			// Invalid version message
+			res.status(501);
+			res.send({"msg": "Version not supported"});
+		}
+	}
+});
+
+// Not implemented
+app.post('*', function (req, res) {
+	if (gatekeeper.autocheck(req, res)) {
+		// Invalid method message
+		res.status(404);
+		res.send({"msg": "Not Implemented"});
+	}
+});
+
+/*
+* Run checks and start server
+*/
+
 // Start server
 app.listen(port);
+
+// Log start
+server.msg("Server started on port " + port)
