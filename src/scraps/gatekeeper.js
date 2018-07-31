@@ -12,7 +12,7 @@ const { points, resetTime, banTime, bantrigger } = require('./../config/gatekeep
 
 // Users that are being 
 var access = {};
-var banned = {};
+var banned = [];
 var isDev = false;
 var msg = function (x, y = "") {
 	// Call startup to setup
@@ -40,7 +40,7 @@ function addToUser(id, value = -50) {
 * @return true if banned, false otherwise
 */
 function isBanned(id) {
-	banned.hasOwnProperty(id);
+	banned.includes(id);
 }
 
 /*
@@ -65,7 +65,7 @@ function isToBeBanned(id) {
 * ban(id) - Bans given id
 */
 function ban(id) {
-	// body...
+	banned.push(id);
 }
 
 /*
@@ -79,7 +79,7 @@ function resetAccess() {
 * resetBan() - Resets Ban DB
 */
 function resetBan() {
-	banned = {};
+	banned = [];
 }
 
 // Making public functions available
