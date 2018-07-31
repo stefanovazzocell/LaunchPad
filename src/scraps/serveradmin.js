@@ -92,7 +92,7 @@ module.exports = {
 			process.exit(201);
 		}
 		// Check the database
-		if (db.check(db)) {
+		if (db.check()) {
 			// Try to reconstruct the database
 			if (db.rebuild()) {
 				this.msg('DB Rebuild Successful', 'log');
