@@ -13,6 +13,9 @@ const { points, resetTime, banTime, bantrigger } = require('./../config/gatekeep
 // Users that are being 
 var access = {};
 var banned = {};
+var msg = function (x, y = "") {
+	// Call startup to setup
+}
 
 /*
 * addToUser(id, value) - Add (or remove) a given amount of points to an user
@@ -78,25 +81,6 @@ function resetBan() {
 	banned = {};
 }
 
-/*
-* startup() - Starts up gatekeeper's resets
-*/
-function startup() {
-	// At some random time (between 0 and 120 seconds) set ban timer
-	setTimeout(function () {
-		// Start Reset Ban Timer
-		setInterval(resetBan, banTime * 60);
-	}, (Math.random() * 120));
-	// At some random time (between 0 and 120 seconds) set access timer
-	setTimeout(function () {
-		// Start Reset Access Timer
-		setInterval(resetAccess, resetTime * 60);
-	}, (Math.random() * 120));
-}
-
-// Call Startup
-startup();
-
 // Making public functions available
 module.exports = {
 	/*
@@ -115,10 +99,33 @@ module.exports = {
 		} else if (isMaxed(id)) {
 			// Check if it is to be banned
 			if (isToBeBanned(id)) {
+				msg("User has been banned", "log");
 				// Ban
 				ban(id);
 			}
 			return false;
 		}
+	},
+	/*
+	* startup(msgfn) - Starts up gatekeeper's resets
+	*
+	* @requires msg to be a msg utility from serveradmin.js package
+	*/
+	startup: function (msgfn) {
+		// Save teh msg util
+		msg = msgfn;
+		// At some random time (between 0 and 120 seconds) set ban timer
+		setTimeout(function () {
+			// Start Reset Ban Timer
+			setInterval(resetBan, banTime * 60);
+			msg("Started resetBan interval", "log");
+		}, (Math.random() * 120));
+		// At some random time (between 0 and 120 seconds) set access timer
+		setTimeout(function () {
+			// Start Reset Access Timer
+			setInterval(resetAccess, resetTime * 60);
+			msg("Started resetAccess interval", "log");
+		}, (Math.random() * 120));
+		msg("Startup of gatekeeper initiated", "log");
 	}
 }
