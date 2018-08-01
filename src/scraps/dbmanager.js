@@ -76,13 +76,15 @@ module.exports = {
 	* dbCheck() - Performs a database check
 	* 
 	* @requires callback to be the callback function
+	* @requires databaseName to be a string indicating the name of the database to use (or create)
+	* @requires rebuildIfNA bool true if db should be rebuild if not available
 	*/
-	check: function (callback) {
+	check: function (callback, databaseName = 'launchpad', rebuildIfNA = false) {
 		// Perform database check
 		if (true) {
 			callback(); // TODO
 		} else {
-			rebuild(callback);
+			if (rebuildIfNA) rebuild(callback);
 		}
 	}
 }
