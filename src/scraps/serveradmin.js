@@ -82,24 +82,17 @@ module.exports = {
 	* checks(db) - Performs multiple systems checks and tries to resolve issues
 	*
 	* @requires db dbmanager used to check and fix db
+	* @requires databaseName to be a string indicating the name of the database to use (or create)
 	* @requires callback to be the callback function
 	*/
-	checks: function (db, callback) {
+	checks: function (db, databaseName, callback) {
 		// Check for arguments
 		checkArgs();
 		// Check the database connection
 		db.connectionCheck(msg, function() {
 			// Check the database
-			db.check(callback);
+			db.check(callback, databaseName, modeIsDev());
 		});
-		// Check the database
-		if (db.check()) {
-			// Try to reconstruct the database
-			if (db.rebuild()) {
-				this.msg('DB Rebuild Successful', 'log');
-			} else {
-			}
-		}
 	},
 	/* Vars */
 	isDev: modeIsDev
