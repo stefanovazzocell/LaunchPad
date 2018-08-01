@@ -13,7 +13,7 @@ var mysql = require('mysql');
 const hostname = 'localhost'; // TODO: Change Me!
 const username = 'root';      // TODO: Change Me!
 const authPassword = 'root';  // TODO: Change Me!
-
+var dbName = 'launchpad'; // Changed when initiated
 
 // Load credentials
 var dbConnection = mysql.createPool({
@@ -25,6 +25,19 @@ var dbConnection = mysql.createPool({
 // Prepare variables
 var msg = function (x, y = '') {
 	// Call startup to setup
+}
+
+/*
+* updateConnection() - Updates the connection with the requested DB Name
+*/
+function updateConnection() {
+	dbConnection = mysql.createPool({
+		host: hostname,
+		user: username,
+		password: authPassword,
+		database : dbName,
+		queueLimit: 100
+	});
 }
 
 /*
@@ -113,13 +126,9 @@ module.exports = {
 	* @requires rebuildIfNA bool true if db should be rebuild if not available
 	*/
 	check: function (callback, databaseName = 'launchpad', rebuildIfNA = false) {
-		var dbConnection = mysql.createPool({
-			host: hostname,
-			user: username,
-			password: authPassword,
-			database : databaseName,
-			queueLimit: 100
-		});
+		// Update the databaseName and reconnect
+		dbName = databaseName;
+		updateConnection();
 		// Perform database check
 		if (true) {
 			callback(); // TODO
