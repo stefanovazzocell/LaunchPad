@@ -11,22 +11,26 @@ var mysql = require('mysql');
 
 // Load credentials
 var dbConnection = mysql.createConnection({
-	"host": "localhost", // TODO: Change this
-	"user": "root",		 // TODO: Change this
-	"password": "root"	 // TODO: Change this
+	host: 'localhost', // TODO: Change this
+	user: 'root',		 // TODO: Change this
+	password: 'root',	 // TODO: Change this
+	database : ''
 });
 
 // Prepare variables
-var msg = function (x, y = "") {
+var msg = function (x, y = '') {
 	// Call startup to setup
 }
 
 /*
-* query() - Query DB
+* query(query, data, onSuccess, onError) - Query DB
 * 
-* @return boolean - true if connection successful, false otherwise
+* @requires query is a query string
+* @requires data is a query options
+* @requires onSuccess is a callback function
+* @requires onError is a callback function
 */
-function query() {
+function query(query, data, onSuccess, onError) {
 	// body...
 }
 
@@ -63,7 +67,7 @@ module.exports = {
 				msg(err);
 				process.exit(201);
 			} else {
-				msg("Connected to the database successfully", "log");
+				msg('Connected to the database successfully', 'log');
 				callback();
 			}
 		});

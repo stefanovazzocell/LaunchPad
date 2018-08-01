@@ -9,7 +9,7 @@
 // Require Initial Settings
 const { initIsDev } = require('./../config/admin');
 
-var isDev = "init";
+var isDev = 'init';
 
 /*
 * checkArgs() - checks if there are some special arguments passed
@@ -35,7 +35,7 @@ function checkArgs() {
 		}
 	});
 	// Require Settings if not available
-	if (isDev === "init") {
+	if (isDev === 'init') {
 		isDev = initIsDev;
 		if (isDev) {
 			msg('Mode is (init) development', 'warning');
@@ -51,7 +51,7 @@ function checkArgs() {
 * @returns true if the move is dev else otherwise
 */
 function modeIsDev() {
-	return isDev === "init" ? false : isDev
+	return isDev === 'init' ? false : isDev
 }
 
 /*

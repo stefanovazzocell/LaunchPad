@@ -14,12 +14,12 @@ const { points, resetTime, banTime, bantrigger } = require('./../config/gatekeep
 var access = {};
 var banned = [];
 var isDev = false;
-var msg = function (x, y = "") {
+var msg = function (x, y = '') {
 	// Call startup to setup
 }
 var getIp = function (x) {
 	// Call startup to setup
-	return "uninitialized";
+	return 'uninitialized';
 }
 
 /*
@@ -32,7 +32,7 @@ function addToUser(id, value = -50) {
 	// Check if it's a new ID
 	if (! access.hasOwnProperty(id)) {
 		// Add id to list and update value
-		access[id] = points["start"] + value;
+		access[id] = points['start'] + value;
 	} else {
 		// Update id value
 		access[id] += value;
@@ -94,7 +94,7 @@ function resetBan() {
 * @requires type to be a valid string query on settings
 * @return true if user is allowed, false otherwise
 */
-function check(id = "unknown", type = "query") {
+function check(id = 'unknown', type = 'query') {
 	// Increase the counter for user
 	addToUser(id, points[type])
 	// Check if user is banned or maxed
@@ -104,9 +104,9 @@ function check(id = "unknown", type = "query") {
 		// Check if it is to be banned
 		if (isToBeBanned(id)) {
 			if (isDev) {
-				msg("User \"" + id + "\" has been banned", "log");
+				msg('User "' + id + '" has been banned', 'log');
 			} else {
-				msg("User has been banned", "log");
+				msg('User has been banned', 'log');
 			}
 			// Ban
 			ban(id);
@@ -130,7 +130,7 @@ module.exports = {
 	* @requires type to be a valid string query on settings
 	* @returns true if user is allowed, false otherwise
 	*/
-	autocheck: function (req, res, type = "query") {
+	autocheck: function (req, res, type = 'query') {
 		var ip = getIp(req);
 		if (check(ip, type)) {
 			// Continue execution
@@ -141,7 +141,7 @@ module.exports = {
 				// Banned [ignore user]
 			} else {
 				// Rate limited
-				res.send({"msg": "Rate limited, try again later"});
+				res.send({'msg': 'Rate limited, try again later'});
 			}
 			// End connection
 			res.end();
@@ -168,14 +168,14 @@ module.exports = {
 		setTimeout(function () {
 			// Start Reset Ban Timer
 			setInterval(resetBan, banTime * 60 * 1000);
-			if (isDev) msg("Started resetBan interval", "log");
+			if (isDev) msg('Started resetBan interval', 'log');
 		}, (Math.random() * random * 1000));
 		// At some random time (between 0 and 120 seconds) set access timer
 		setTimeout(function () {
 			// Start Reset Access Timer
 			setInterval(resetAccess, resetTime * 60 * 1000);
-			if (isDev) msg("Started resetAccess interval", "log");
+			if (isDev) msg('Started resetAccess interval', 'log');
 		}, (Math.random() * random * 1000));
-		msg("Startup of gatekeeper initiated", "log");
+		msg('Startup of gatekeeper initiated', 'log');
 	}
 }

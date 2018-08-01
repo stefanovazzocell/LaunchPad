@@ -40,7 +40,7 @@ function getProxy(req) {
 }
 
 /*
-* getRequest(req) - gets the ip from the request if allowed or returns "unknown"
+* getRequest(req) - gets the ip from the request if allowed or returns 'unknown'
 *
 * @requires req to be a valid express request
 * @returns ip string
@@ -50,18 +50,18 @@ function getRequest(req) {
 	if (use_connection_ip) {
 		return req.connection.remoteAddress;
 	} else {
-		return "unknown";
+		return 'unknown';
 	}
 }
 
 /*
-* getCfCountry(req) - gets the country code from Cloudflare header or "??" for unknown
+* getCfCountry(req) - gets the country code from Cloudflare header or '??' for unknown
 *
 * @requires req to be a valid express request
-* @returns country code string as for |ISO 3166-1 Alpha 2| or "??" if unknown
+* @returns country code string as for |ISO 3166-1 Alpha 2| or '??' if unknown
 */
 function getCfCountry(req) {
-	return req.headers("HTTP_CF_IPCOUNTRY") || "??";
+	return req.headers('HTTP_CF_IPCOUNTRY') || '??';
 }
 
 // Make public function accessible
