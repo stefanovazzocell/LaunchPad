@@ -30,41 +30,55 @@ function query() {
 	// body...
 }
 
+/*
+* rebuild() - Clears the database and rebuilds it
+*
+* @requires callback to be the callback function
+*/
+function rebuild(callback) {
+	// Attempt db rebuilding
+	if (true) {
+		callback(); // TODO
+	} else {
+		this.msg('DB Rebuild Failed');
+		process.exit(202);
+	}
+}
+
 // Make modules accessible
 module.exports = {
 	/*
 	* dbConnectionCheck(msgfn) - Performs a database connection check
 	* 
 	* @requires msgfn to be a msg utility from serveradmin.js package
-	* @return boolean - true if connection successful, false otherwise
+	* @requires callback to be the callback function
 	*/
-	connectionCheck: function (msgfn) {
+	connectionCheck: function (msgfn, callback) {
 		// Save the msg & getIpUtil utility and the mode
 		msg = msgfn;
 		// Perform database connection check
 		dbConnection.connect(function(err) {
 			if (err) {
+				msg('DB Connection Error, error:');
 				msg(err);
+				process.exit(201);
+			} else {
+				msg("Connected to the database successfully", "log");
+				callback();
 			}
-			msg("Connected to the database successfully", "log");
 		});
 	},
 	/*
 	* dbCheck() - Performs a database check
 	* 
-	* @return boolean - true if the database seems valid, false if issues
+	* @requires callback to be the callback function
 	*/
-	check: function () {
+	check: function (callback) {
 		// Perform database check
-		return true; // TODO
-	},
-	/*
-	* rebuild() - Clears the database and rebuilds it
-	*
-	* @returns true if successful, false otherwise
-	*/
-	rebuild: function () {
-		// Attempt db rebuilding
-		return true;// TODO
+		if (true) {
+			callback(); // TODO
+		} else {
+			rebuild(callback);
+		}
 	}
 }
