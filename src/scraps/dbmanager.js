@@ -84,7 +84,12 @@ module.exports = {
 		if (true) {
 			callback(); // TODO
 		} else {
-			if (rebuildIfNA) rebuild(callback);
+			if (rebuildIfNA) {
+				rebuild(callback);
+			} else {
+				msg('DB Rebuild Failed: not allowed (in prod mode)');
+				process.exit(202);
+			}
 		}
 	}
 }
