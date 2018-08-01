@@ -1,4 +1,5 @@
 {
 	"port": 8080,
-	"version": "000"
+	"version": "000",
+	"dbname": "launchpad"
 }
