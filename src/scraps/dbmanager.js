@@ -38,6 +38,7 @@ function updateConnection() {
 		database : dbName,
 		queueLimit: 100
 	});
+	msg('DB Connection updated', 'log');
 }
 
 /*
@@ -116,10 +117,10 @@ module.exports = {
 				} finally {
 					// Connection failed
 					onError('Connection to DB failed', err);
-					msg('DB Rebuild Failed: not allowed (in prod mode)');
 					process.exit(202);
 				}
 			} else {
+				msg('DB Connection established', 'log');
 				onSuccess();
 			}
 		});
