@@ -9,13 +9,17 @@
 // Require Dependencies
 var mysql = require('mysql');
 
+// Credentials Storage
+const hostname = 'localhost'; // TODO: Change Me!
+const username = 'root';      // TODO: Change Me!
+const authPassword = 'root';  // TODO: Change Me!
+
+
 // Load credentials
 var dbConnection = mysql.createPool({
-	host: 'localhost', // TODO: Change this
-	user: 'root',		 // TODO: Change this
-	password: 'root',	 // TODO: Change this
-//	database : '',
-	queueLimit: 100
+	host: hostname,
+	user: username,
+	password: authPassword
 });
 
 // Prepare variables
@@ -35,7 +39,7 @@ function query(query, param=null, onSuccess, onError) {
 	dbConnection.getConnection(function(err, connection) {
 		if (err) {
 			try {
-				// Tru to destroy the faulty connection
+				// Try to destroy the faulty connection
 				connection.destroy();
 			} finally {
 				// Connection failed
@@ -51,7 +55,7 @@ function query(query, param=null, onSuccess, onError) {
 				if (err) {
 					// Handle Error
 					onError('Issues with the database', err);
-				} else (error) {
+				} else if (error) {
 					// Handle Error
 					onError('Issues with the database', error);
 				} else {
@@ -109,6 +113,13 @@ module.exports = {
 	* @requires rebuildIfNA bool true if db should be rebuild if not available
 	*/
 	check: function (callback, databaseName = 'launchpad', rebuildIfNA = false) {
+		var dbConnection = mysql.createPool({
+			host: hostname,
+			user: username,
+			password: authPassword,
+			database : databaseName,
+			queueLimit: 100
+		});
 		// Perform database check
 		if (true) {
 			callback(); // TODO
