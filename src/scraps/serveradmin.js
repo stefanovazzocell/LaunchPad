@@ -92,6 +92,11 @@ module.exports = {
 		db.connectionCheck(msg, function() {
 			// Check the database
 			db.check(callback, databaseName, modeIsDev());
+		}, function(message, error) {
+			msg(message);
+			if (modeIsDev()) {
+				msg(error);
+			}
 		});
 	},
 	/* Vars */

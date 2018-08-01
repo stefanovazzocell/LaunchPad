@@ -16,7 +16,7 @@ const authPassword = 'root';  // TODO: Change Me!
 var dbName = 'launchpad'; // Changed when initiated
 
 // Load credentials
-var dbConnection = mysql.createPool({
+var dbConnectionsPool = mysql.createPool({
 	host: hostname,
 	user: username,
 	password: authPassword
@@ -31,7 +31,7 @@ var msg = function (x, y = '') {
 * updateConnection() - Updates the connection with the requested DB Name
 */
 function updateConnection() {
-	dbConnection = mysql.createPool({
+	dbConnectionsPool = mysql.createPool({
 		host: hostname,
 		user: username,
 		password: authPassword,
@@ -49,7 +49,7 @@ function updateConnection() {
 * @requires onError(message, error) is a callback function
 */
 function query(query, param=null, onSuccess, onError) {
-	dbConnection.getConnection(function(err, connection) {
+	dbConnectionsPool.getConnection(function(err, connection) {
 		if (err) {
 			try {
 				// Try to destroy the faulty connection
@@ -98,23 +98,29 @@ function rebuild(callback) {
 // Make modules accessible
 module.exports = {
 	/*
-	* dbConnectionCheck(msgfn) - Performs a database connection check
+	* connectionCheck(msgfn, onSuccess, onError) - Performs a database connection check
 	* 
 	* @requires msgfn to be a msg utility from serveradmin.js package
-	* @requires callback to be the callback function
+	* @requires onSuccess to be the callback function
+	* @requires onError(message, error) to be the error callback function
 	*/
-	connectionCheck: function (msgfn, callback) {
+	connectionCheck: function (msgfn, onSuccess, onError) {
 		// Save the msg & getIpUtil utility and the mode
 		msg = msgfn;
 		// Perform database connection check
-		dbConnection.connect(function(err) {
+		dbConnectionsPool.getConnection(function(err, connection) {
 			if (err) {
-				msg('DB Connection Error, error:');
-				msg(err);
-				process.exit(201);
+				try {
+					// Try to destroy the faulty connection
+					connection.destroy();
+				} finally {
+					// Connection failed
+					onError('Connection to DB failed', err);
+					msg('DB Rebuild Failed: not allowed (in prod mode)');
+					process.exit(202);
+				}
 			} else {
-				msg('Connected to the database successfully', 'log');
-				callback();
+				onSuccess();
 			}
 		});
 	},
