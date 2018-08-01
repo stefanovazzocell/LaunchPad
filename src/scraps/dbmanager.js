@@ -10,11 +10,12 @@
 var mysql = require('mysql');
 
 // Load credentials
-var dbConnection = mysql.createConnection({
+var dbConnection = mysql.createPool({
 	host: 'localhost', // TODO: Change this
 	user: 'root',		 // TODO: Change this
 	password: 'root',	 // TODO: Change this
-	database : ''
+//	database : '',
+	queueLimit: 100
 });
 
 // Prepare variables
@@ -23,15 +24,43 @@ var msg = function (x, y = '') {
 }
 
 /*
-* query(query, data, onSuccess, onError) - Query DB
+* query(query, param, onSuccess, onError) - Query DB
 * 
 * @requires query is a query string
-* @requires data is a query options
-* @requires onSuccess is a callback function
-* @requires onError is a callback function
+* @requires param are the query parameters
+* @requires onSuccess(results) is a callback function
+* @requires onError(message, error) is a callback function
 */
-function query(query, data, onSuccess, onError) {
-	// body...
+function query(query, param=null, onSuccess, onError) {
+	dbConnection.getConnection(function(err, connection) {
+		if (err) {
+			try {
+				// Tru to destroy the faulty connection
+				connection.destroy();
+			} finally {
+				// Connection failed
+				onError('Connection to DB failed', err);
+			}
+		} else {
+			// Use the connection
+			connection.query(query, param, function (error, results, fields) {
+
+				// When done with the connection, release it.
+				connection.release();
+
+				if (err) {
+					// Handle Error
+					onError('Issues with the database', err);
+				} else (error) {
+					// Handle Error
+					onError('Issues with the database', error);
+				} else {
+					// Return tje results
+					onSuccess(results);
+				}
+			});
+		}
+	});
 }
 
 /*
