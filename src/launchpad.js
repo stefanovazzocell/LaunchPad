@@ -36,9 +36,7 @@ var { port, version } = require('./config/general');
 // Update port if necessary
 port = process.env.PORT || port || 8080;
 // Startup gatekeeper
-gatekeeper.startup(server.msg, server.isDev, ipresolver.getIp)
-// Perform checks
-server.checks(dbmanager);
+gatekeeper.startup(server.msg, server.isDev, ipresolver.getIp);
 
 /*
 * Linking dependencies
@@ -158,11 +156,15 @@ app.post('*', function (req, res) {
 });
 
 /*
-* Run checks and start server
+* Run final checks and start server
 */
 
-// Start server
-app.listen(port);
 
-// Log start
-server.msg("Server started on port " + port)
+// Perform checks
+server.checks(dbmanager, function() {
+	// Start server
+	app.listen(port);
+
+	// Log start
+	server.msg("Server started on port " + port);
+});
