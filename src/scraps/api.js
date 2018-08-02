@@ -9,6 +9,7 @@
 // Prepare variables
 var query;
 var msg;
+var gkCheck;
 
 /*
 * Helpers
@@ -21,8 +22,27 @@ var msg;
 * @requests msg string to return the user
 */
 function requestError(res, msg='Something is wrong with your request, try refreshing the page') {
+	// Request does not match API standards
+	gkCheck('apiError', req);
 	res.status(400);
 	res.send({'msg': msg});
+}
+
+/*
+* isAvailable(toCheck) - Check if all variables in array are set
+*
+* @requests toCheck is array of variables to check
+* @requests res is a express response
+* @return bool true if all available, false otherwise
+*/
+function isAvailable(toCheck, res) {
+	for (var i = 0; i < toCheck.length; i++) {
+		if (toCheck[i] === undefined) {
+			requestError(res);
+			return false;
+		}
+	}
+	return true;
 }
 
 /*
@@ -36,7 +56,9 @@ function requestError(res, msg='Something is wrong with your request, try refres
 * @requires res from expressjs' request
 */
 function api_get(req, res) {
-	//
+	if (isAvailable([req.body.link, req.body.data, req.body.parameters], res)) {
+		res.send("ok");
+	}
 }
 
 /*
@@ -52,14 +74,16 @@ function api_set(req, res) {
 // Make public function accessible
 module.exports = {
 	/*
-	* setup(queryFn, msgFn) - Setup local variables
+	* setup(queryFn, msgFn, gkCheckFn) - Setup local variables
 	*
 	* @requires queryFn to be a database query function
 	* @requires msgFn to be a msg function
+	* @requires gkCheckFn to be gatekeeper's function
 	*/
-	setup: function(queryFn, msgFn) {
+	setup: function(queryFn, msgFn, gkCheckFn) {
 		query = queryFn;
 		msg = msgFn;
+		gkCheck = gkCheckFn;
 	},
 	/*
 	* api(req, res) - Handle API Calls
@@ -86,8 +110,8 @@ module.exports = {
 					res.send('ok');
 			}
 		} catch(err) {
-			msg(err)
-			// Invalid version message
+			// Request does not match API standards
+			gkCheck('apiError', req);
 			res.status(500);
 			res.send({'msg': 'Corrupted request'});
 		}
