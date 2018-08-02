@@ -69,7 +69,7 @@ app.use(function (req, res, next) {
 
 // GET not allowed
 app.get('*', function (req, res) {
-	if (gatekeeper.autocheck(req, res)) {
+	if (gatekeeper.autocheck(req, res, 'getReq')) {
 		// Get requests not allowed
 		res.status(405);
 		res.send('GET Requests not allowed');
@@ -88,10 +88,10 @@ app.post('/secure/', function (req, res) {
 	if (gatekeeper.autocheck(req, res)) {
 		if (server.isDev) {
 			// Server is in development mode
-			res.send('no');
+			res.send({'secure': 'false', 'msg': 'The server is not secure; avoid using the service at this moment'});
 		} else {
 			// Server is in production
-			res.send('yes');
+			res.send({'secure': 'true'});
 		}
 	}
 });
@@ -105,8 +105,9 @@ app.post('/api/*', function (req, res) {
 			api.api(req, res);
 		} else {
 			// Invalid version message
+			gatekeeper.check('apiError', req);
 			res.status(501);
-			res.send({'msg': 'Version not supported'});
+			res.send({'msg': 'Not Authorized, you have been banned temporarely'});
 		}	
 	}
 });
@@ -115,8 +116,9 @@ app.post('/api/*', function (req, res) {
 app.post('*', function (req, res) {
 	if (gatekeeper.autocheck(req, res)) {
 		// Invalid method message
+		gatekeeper.check('apiError', req);
 		res.status(404);
-		res.send({'msg': 'Not Implemented'});
+		res.send({'msg': 'Not Authorized, you have been banned temporarely'});
 	}
 });
 
@@ -127,7 +129,7 @@ app.post('*', function (req, res) {
 // Perform checks
 server.checks(dbmanager, function() {
 	// Startup API
-	api.setup(dbmanager.query, server.msg);
+	api.setup(dbmanager.query, server.msg, gatekeeper.check);
 	// Start server
 	app.listen(port);
 	// Log start
