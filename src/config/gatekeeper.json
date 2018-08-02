@@ -5,7 +5,8 @@
 		"validLink": -2,
 		"invalidLink": -39,
 		"validCreateLink": -39,
-		"invalidCreateLink": -10
+		"invalidCreateLink": -10,
+		"apiError": -500
 	},
 	"resetTime": 1,
 	"banTime": 10,
