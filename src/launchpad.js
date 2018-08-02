@@ -27,7 +27,7 @@ const server = require('./scraps/serveradmin'); // Server Admin Tools
 * Require Settings
 */
 
-const { port, version, dbname } = require('./config/general');
+var { port, version } = require('./config/general');
 
 /*
 * Perform initial checks
@@ -159,12 +159,10 @@ app.post('*', function (req, res) {
 * Run final checks and start server
 */
 
-
 // Perform checks
-server.checks(dbmanager, dbname, function() {
+server.checks(dbmanager, function() {
 	// Start server
 	app.listen(port);
-
 	// Log start
 	server.msg('Server started on port ' + port);
 });
