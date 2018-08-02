@@ -90,7 +90,11 @@ module.exports = {
 		// Check the database connection
 		db.connectionCheck(msg, function() {
 			// Check the database
-			db.check(callback, modeIsDev());
+			db.check(function () {
+				msg('DB Cleanup scheduled', 'log');
+				db.performDbCleanup();
+				callback();
+			}, modeIsDev());
 		}, function(message, error) {
 			msg(message);
 			if (modeIsDev()) {

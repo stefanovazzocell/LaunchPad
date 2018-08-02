@@ -157,6 +157,8 @@ function rebuild(callback) {
 
 // Make modules accessible
 module.exports = {
+	// Making performDbCleanup available publicly
+	performDbCleanup: performDbCleanup,
 	/*
 	* connectionCheck(msgfn, onSuccess, onError) - Performs a database connection check
 	* 
