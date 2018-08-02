@@ -10,6 +10,45 @@
 var query;
 var msg;
 
+/*
+* Helpers
+*/
+
+/*
+* requestError(res, msg) - Sends a 400 error
+*
+* @requests res is a express response
+* @requests msg string to return the user
+*/
+function requestError(res, msg='Something is wrong with your request, try refreshing the page') {
+	res.status(400);
+	res.send({'msg': msg});
+}
+
+/*
+* Calls
+*/
+
+/*
+* api_get(req, res) - Handle calls to 'get'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_get(req, res) {
+	//
+}
+
+/*
+* api_set(req, res) - Handle calls to 'set'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_set(req, res) {
+	//
+}
+
 // Make public function accessible
 module.exports = {
 	/*
@@ -32,10 +71,10 @@ module.exports = {
 		try {
 			switch(req.body.type) {
 				case 'get': // Get a link
-					res.send('getting');
+					api_get(req, res);
 					break;
 				case 'set': // Creating a new link
-					res.send('setting');
+					api_set(req, res);
 					break;
 				case 'edit': // Edit a link
 					requestError(res, 'Not action implemented yet');

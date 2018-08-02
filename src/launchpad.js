@@ -64,20 +64,6 @@ app.use(function (req, res, next) {
 });
 
 /*
-* Local helpers
-*/
-/*
-* requestError(res, msg) - Sends a 400 error
-*
-* @requests res is a express response
-* @requests msg string to return the user
-*/
-function requestError(res, msg='Something is wrong with your request, try refreshing the page') {
-	res.status(400);
-	res.send({'msg': msg});
-}
-
-/*
 * Routes
 */
 
