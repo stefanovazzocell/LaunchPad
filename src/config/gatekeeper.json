@@ -1,7 +1,8 @@
 {
 	"points": {
-		"start": 200,
+		"start": 201,
 		"query": -1,
+		"getReq": -100,
 		"validLink": -2,
 		"invalidLink": -39,
 		"validCreateLink": -39,

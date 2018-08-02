@@ -2,7 +2,8 @@ Here is a list of gatekeeper.js point system default values:
 
  Change | Movivation  |
 :------:| ----------- |
- +200   | New IP |
+ +201   | New IP |
+ -100   | GET Request |
  -1     | Querying the API |
  -2     | Requesting a Valid URL |
  -39    | Requesting an InValid URL |
