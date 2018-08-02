@@ -111,7 +111,7 @@ function api_get(req, res) {
 			  'SELECT `data`, `parameters` FROM `links` WHERE `link`=? AND `clicks` >= 0 AND `expiration` > NOW();',
 			[String(req.body.l), String(req.body.l)],
 			function (results) {
-				if (results.length < 1) {
+				if (results[1].length < 1) {
 					// Not Found
 					res.send({
 						'f': false
@@ -121,12 +121,12 @@ function api_get(req, res) {
 					// Send response to user
 					res.send({
 						'f': true,
-						'd': results[0]['data'],
-						'p': results[0]['parameters']
+						'd': results[1][0]['data'],
+						'p': results[1][0]['parameters']
 					});
 				}
 			}, function (errorMsg, error) {
-				requestError(req, res, "Woops! Something went wrong, try again later", false, 500);
+				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
 			});
 	}
 }
@@ -145,7 +145,21 @@ function api_set(req, res) {
 							 intBetween(req.body.expiration, 8760) &&
 							 stringBetween(req.body.d, 2048) &&
 							 stringBetween(req.body.p, 512)); }, req, res)) {
-		res.send("ok");
+		datetime = now();
+		// Query the database
+		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,?,\'\')',
+			[String(req.body.l), String(req.body.d), String(req.body.p), req.body.c, datetime],
+			function(results) {
+				// Success, let the user know
+				res.send({
+					'a': true
+				});
+			}, function(errorMsg, error) {
+				// Link not available
+				res.send({
+					'a': false
+				});
+			});
 	}
 }
 
