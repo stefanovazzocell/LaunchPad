@@ -16,29 +16,33 @@ var gkCheck;
 */
 
 /*
-* requestError(res, msg) - Sends a 400 error
+* requestError(req, res, msg, apiError, errorStatus) - Sends a 400 error
 *
-* @requests res is a express response
-* @requests msg string to return the user
+* @requires req is a express request
+* @requires res is a express response
+* @requires msg string to return the user
+* @requires apiError bool true if is an api error, false if not
+* @requires errorStatus to be a number indicating what status to return to the user
 */
-function requestError(res, msg='Something is wrong with your request, try refreshing the page') {
+function requestError(req, res, msg='Something is wrong with your request, try refreshing the page', apiError=true, errorStatus=400) {
 	// Request does not match API standards
-	gkCheck('apiError', req);
-	res.status(400);
+	if (apiError) gkCheck('apiError', req);
+	res.status(errorStatus);
 	res.send({'msg': msg});
 }
 
 /*
-* isAvailable(toCheck, res) - Check if all variables in array are set
+* isAvailable(toCheck, req, res) - Check if all variables in array are set
 *
-* @requests toCheck is array of variables to check
-* @requests res is a express response
+* @requires toCheck is array of variables to check
+* @requires req is a express request
+* @requires res is a express response
 * @return bool true if all available, false otherwise
 */
-function isAvailable(toCheck, res) {
+function isAvailable(toCheck, req, res) {
 	for (var i = 0; i < toCheck.length; i++) {
 		if (toCheck[i] === undefined) {
-			requestError(res);
+			requestError(req, res);
 			return false;
 		}
 	}
@@ -48,9 +52,9 @@ function isAvailable(toCheck, res) {
 /*
 * intBetween(number, max, min) - Checks if the number is an int between the given values included
 *
-* @requests number is number to check
-* @requests max is max value
-* @requests max is min value
+* @requires number is number to check
+* @requires max is max value
+* @requires max is min value
 * @return bool true if conditions match, false otherwise
 */
 function intBetween(number, max, min = 1) {
@@ -60,9 +64,9 @@ function intBetween(number, max, min = 1) {
 /*
 * stringBetween(text, max, min) - Checks if the text is has a length between the given values included
 *
-* @requests text is string to check
-* @requests max is max value
-* @requests max is min value
+* @requires text is string to check
+* @requires max is max value
+* @requires max is min value
 * @return bool true if conditions match, false otherwise
 */
 function stringBetween(text, max, min = 50) {
@@ -70,15 +74,16 @@ function stringBetween(text, max, min = 50) {
 }
 
 /*
-* assertTrue(toCheck, checks, res) - Check if isAvailable toCheck produces true and a check function produces true
+* assertTrue(toCheck, checks, req, res) - Check if isAvailable toCheck produces true and a check function produces true
 *
-* @requests toCheck is array of variables to check
-* @requests checks is function to check
-* @requests res is a express response
+* @requires toCheck is array of variables to check
+* @requires checks is function to check
+* @requires req is a express request
+* @requires res is a express response
 * @return bool true if all true, false otherwise
 */
-function assertTrue(toCheck, checks, res) {
-	if (isAvailable(toCheck, res)) {
+function assertTrue(toCheck, checks, req, res) {
+	if (isAvailable(toCheck, req, res)) {
 		try {
 			return checks();
 		} catch(err) {
@@ -100,8 +105,29 @@ function assertTrue(toCheck, checks, res) {
 * @requires res from expressjs' request
 */
 function api_get(req, res) {
-	if (assertTrue([req.body.l], function() { return stringBetween(req.body.l, 64, 64); }, res)) {
-		res.send("ok");
+	if (assertTrue([req.body.l], function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
+		// Query the database
+		query('UPDATE `links` SET `clicks`=`clicks`-1 WHERE `link`=? AND `clicks` >= 0 AND `expiration` > NOW();\n' +
+			  'SELECT `data`, `parameters` FROM `links` WHERE `link`=? AND `clicks` >= 0 AND `expiration` > NOW();',
+			[String(req.body.l), String(req.body.l)],
+			function (results) {
+				if (results.length < 1) {
+					// Not Found
+					res.send({
+						'f': false
+					});
+				} else {
+					// Found
+					// Send response to user
+					res.send({
+						'f': true,
+						'd': results[0]['data'],
+						'p': results[0]['parameters']
+					});
+				}
+			}, function (errorMsg, error) {
+				requestError(req, res, "Woops! Something went wrong, try again later", false, 500);
+			});
 	}
 }
 
@@ -118,7 +144,7 @@ function api_set(req, res) {
 							 intBetween(req.body.e, 8760) &&
 							 intBetween(req.body.expiration, 8760) &&
 							 stringBetween(req.body.d, 2048) &&
-							 stringBetween(req.body.p, 512)); }, res)) {
+							 stringBetween(req.body.p, 512)); }, req, res)) {
 		res.send("ok");
 	}
 }
@@ -145,7 +171,7 @@ module.exports = {
 	*/
 	api: function(req, res) {
 		try {
-			switch(req.body.t) {
+			switch(String(req.body.t)) {
 				case 'get': // Get a link
 					api_get(req, res);
 					break;
@@ -153,19 +179,17 @@ module.exports = {
 					api_set(req, res);
 					break;
 				case 'edit': // Edit a link
-					requestError(res, 'Not action implemented yet');
+					requestError(req, res, 'Not action implemented yet');
 					break;
 				case 'stats': // Get stats for a link
-					requestError(res, 'Not action implemented yet');
+					requestError(req, res, 'Not action implemented yet');
 					break;
 				default:
 					res.send('ok');
 			}
 		} catch(err) {
 			// Request does not match API standards
-			gkCheck('apiError', req);
-			res.status(500);
-			res.send({'msg': 'Corrupted request'});
+			requestError(req, res);
 		}
 	}
 
