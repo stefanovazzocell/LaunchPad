@@ -92,9 +92,13 @@ function resetBan() {
 *
 * @requires id to be a user id string
 * @requires type to be a valid string query on settings
+* @requires req to be null or valid expressjs request
 * @return true if user is allowed, false otherwise
 */
-function check(id = 'unknown', type = 'query') {
+function check(type = 'query', req = null, id = 'unknown') {
+	if (req !== null && (id === 'unknown')) {
+		id = getIp(req);
+	}
 	// Increase the counter for user
 	addToUser(id, points[type])
 	// Check if user is banned or maxed
@@ -132,7 +136,7 @@ module.exports = {
 	*/
 	autocheck: function (req, res, type = 'query') {
 		var ip = getIp(req);
-		if (check(ip, type)) {
+		if (check(type, req)) {
 			// Continue execution
 			return true;
 		} else {
