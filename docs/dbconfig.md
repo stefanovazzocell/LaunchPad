@@ -1,5 +1,7 @@
 Here's the MySql comands to configure the database (with name 'launchpad')
 
+** Create **
+
 ```sql
 -- Create Table --
 CREATE DATABASE IF NOT EXISTS `launchpad`;
@@ -20,4 +22,14 @@ CREATE TABLE `links` (
 -- Set Primary Key --
 ALTER TABLE `links`
   ADD PRIMARY KEY (`link`);
+```
+
+** Check **
+```sql
+-- Indicate which database to use --
+USE `launchpad`;
+
+-- Check if table is available --
+SELECT * FROM `links` WHERE 1 LIMIT 1;
+-- Returns Error is not available, empty or value if present --
 ```
