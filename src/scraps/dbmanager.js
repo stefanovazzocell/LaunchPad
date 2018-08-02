@@ -15,12 +15,8 @@ const username = 'root';      // TODO: Change Me!
 const authPassword = 'root';  // TODO: Change Me!
 var dbName = 'launchpad'; // Changed when initiated
 
-// Load credentials
-var dbConnectionsPool = mysql.createPool({
-	host: hostname,
-	user: username,
-	password: authPassword
-});
+// Prepare connections pool variable
+var dbConnectionsPool;
 
 // Prepare variables
 var msg = function (x, y = '') {
@@ -40,6 +36,28 @@ function updateConnection() {
 	});
 	msg('DB Connection updated', 'log');
 }
+
+/*
+* rollbackConnection(init) - Rollback the connection to work without db name
+* 
+* @requires init is bool true if initial config, false otherwise
+*/
+function rollbackConnection(init = false) {
+	dbConnectionsPool = mysql.createPool({
+		host: hostname,
+		user: username,
+		password: authPassword,
+		queueLimit: 100
+	});
+	if (init) {
+		msg('DB Connection setup', 'log');
+	} else {
+		msg('DB Connection rolled back', 'warn');
+	}
+}
+
+// Use rollbackConnection to configure dbConnectionsPool
+rollbackConnection(true);
 
 /*
 * query(query, param, onSuccess, onError) - Query DB
