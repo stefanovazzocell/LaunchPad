@@ -133,5 +133,5 @@ server.checks(dbmanager, function() {
 	// Start server
 	app.listen(port);
 	// Log start
-	server.msg('Server started on port ' + port);
+	server.msg('Server started on port ' + port, 'log');
 });
