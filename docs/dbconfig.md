@@ -25,6 +25,7 @@ ALTER TABLE `links`
 ```
 
 ** Check **
+
 ```sql
 -- Indicate which database to use --
 USE `launchpad`;

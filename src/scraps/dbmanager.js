@@ -42,16 +42,14 @@ function updateConnection() {
 * 
 * @requires init is bool true if initial config, false otherwise
 */
-function rollbackConnection(init = false) {
+function rollbackConnection(init=false) {
 	dbConnectionsPool = mysql.createPool({
 		host: hostname,
 		user: username,
 		password: authPassword,
 		queueLimit: 100
 	});
-	if (init) {
-		msg('DB Connection setup', 'log');
-	} else {
+	if (!init) {
 		msg('DB Connection rolled back', 'warn');
 	}
 }
