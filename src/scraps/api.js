@@ -58,7 +58,7 @@ function isAvailable(toCheck, req, res) {
 * @return bool true if conditions match, false otherwise
 */
 function intBetween(number, max, min = 1) {
-	return isInteger(number) && number >= min && number <= max;
+	return parseInt(number) && parseInt(number) >= min && parseInt(number) <= max;
 }
 
 /*
@@ -138,17 +138,19 @@ function api_get(req, res) {
 * @requires res from expressjs' request
 */
 function api_set(req, res) {
-	if (assertTrue([req.body.l, req.body.c, req.body.e, req.body.d, req.body.p/*, req.body.o*/],
+	if (assertTrue([req.body.l, req.body.c, req.body.e, req.body.d, req.body.p], //, req.body.o
 		function() { return (stringBetween(req.body.l, 64, 64) &&
 							 intBetween(req.body.c, 1000) &&
 							 intBetween(req.body.e, 8760) &&
-							 intBetween(req.body.expiration, 8760) &&
 							 stringBetween(req.body.d, 2048) &&
 							 stringBetween(req.body.p, 512)); }, req, res)) {
-		datetime = now();
+		var expirationDate = new Date();
+		expirationDate.setMinutes(0, 0, 0); // Minutes, Seconds, Milliseconds
+		expirationDate.setHours(expirationDate.getHours() + parseInt(req.body.e));
+		var eDateStr = expirationDate.toISOString().slice(0, 19).replace('T', ' ');
 		// Query the database
-		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,?,\'\')',
-			[String(req.body.l), String(req.body.d), String(req.body.p), req.body.c, datetime],
+		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,?,\'\');',
+			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c), eDateStr],
 			function(results) {
 				// Success, let the user know
 				res.send({
