@@ -60,14 +60,14 @@ function rollbackConnection(init=false) {
 rollbackConnection(true);
 
 /*
-* query(query, param, onSuccess, onError) - Query DB
+* query(queryQuestion, param, onSuccess, onError) - Query DB
 * 
-* @requires query is a query string
+* @requires queryQuestion is a query string
 * @requires param are the query parameters
 * @requires onSuccess(results) is a callback function
 * @requires onError(message, error) is a callback function
 */
-function query(query, param=null, onSuccess, onError) {
+function query(queryQuestion, param=null, onSuccess, onError) {
 	dbConnectionsPool.getConnection(function(err, connection) {
 		if (err) {
 			try {
@@ -79,7 +79,7 @@ function query(query, param=null, onSuccess, onError) {
 			onError('Connection to DB failed', err);
 		} else {
 			// Use the connection
-			connection.query(query, param, function (error, results, fields) {
+			connection.query(queryQuestion, param, function (error, results, fields) {
 
 				// When done with the connection, release it.
 				connection.release();
