@@ -61,12 +61,16 @@ function modeIsDev() {
 * @requires type (optional) string type of message ['error','log','warning', ...]
 */
 function msg(message, type='error') {
-	message = (new Date()).toString() + ' - ' + message;
+	if (modeIsDev()) {
+		var intro = (new Date()).toString();
+	} else {
+		var intro = 'LaunchPad';
+	}
 	if (type == 'log' || type == 'info') {
-		console.log(message);
+		console.log(intro + ' (log)  > ' + message);
 	} else if (type == 'warning' || type == 'warn') {
-		console.warn(message);
-	} else console.error(message);
+		console.warn(intro + ' [warn] > ' + message);
+	} else console.error(intro + ' [err!] > ' + message);
 }
 
 // Make checks accessible
