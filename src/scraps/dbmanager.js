@@ -6,14 +6,14 @@
 * https://stefanovazzoler.com/
 */
 
-// Require Dependencies
+// Require Dependencies and settings
 var mysql = require('mysql');
+const { dbName, makeTable, setPrimary } = require('./../config/database');
 
 // Credentials Storage
 const hostname = 'localhost'; // TODO: Change Me!
 const username = 'root';      // TODO: Change Me!
 const authPassword = 'root';  // TODO: Change Me!
-var dbName = 'launchpad'; // Changed when initiated
 
 // Prepare connections pool variable
 var dbConnectionsPool;
@@ -71,10 +71,10 @@ function query(query, param=null, onSuccess, onError) {
 			try {
 				// Try to destroy the faulty connection
 				connection.destroy();
-			} finally {
-				// Connection failed
-				onError('Connection to DB failed', err);
+			} catch(error) {
+				// Attempt failed
 			}
+			onError('Connection to DB failed', err);
 		} else {
 			// Use the connection
 			connection.query(query, param, function (error, results, fields) {
@@ -82,14 +82,14 @@ function query(query, param=null, onSuccess, onError) {
 				// When done with the connection, release it.
 				connection.release();
 
-				if (err) {
-					// Handle Error
-					onError('Issues with the database', err);
-				} else if (error) {
+				if (error) {
 					// Handle Error
 					onError('Issues with the database', error);
+				} else if (err) {
+					// Handle Error
+					onError('Issues with the database', err);
 				} else {
-					// Return tje results
+					// Return the results
 					onSuccess(results);
 				}
 			});
@@ -103,13 +103,44 @@ function query(query, param=null, onSuccess, onError) {
 * @requires callback to be the callback function
 */
 function rebuild(callback) {
-	// Attempt db rebuilding
-	if (true) {
-		callback(); // TODO
-	} else {
-		this.msg('DB Rebuild Failed');
+	// Rollback connection
+	rollbackConnection();
+	// Create database
+	query('CREATE DATABASE IF NOT EXISTS `' + dbName + '`', null, function() {
+		// DB Created
+		msg('DB Created, attempting to build table next', 'log');
+		try {
+			// Update the Connection
+			updateConnection();
+			// Build Table and set permissions
+			query(makeTable, null, function () {
+				msg('DB Table Created, attempting to set primary key next', 'log');
+				// Successful
+				query(setPrimary, null, function () {
+					msg('DB Table Primary key set, rebuild successful', 'log');
+					// Successful
+					callback();
+				}, function (errorMsg, err) {
+					msg('DB Rebuild Failed (Failed to set primary key)');
+					msg(err);
+					process.exit(202);
+				});
+			}, function (errorMsg, err) {
+				msg('DB Rebuild Failed (Table creation failed)');
+				msg(err);
+				process.exit(202);
+			});
+		} catch(err) {
+			msg('DB Rebuild Failed (Unknown Error)');
+			msg(err);
+			process.exit(202);
+		}
+	}, function(errorMsg, err) {
+		// Couldn't create
+		msg('DB Rebuild Failed (Could not create database, check permissions)');
+		msg(err);
 		process.exit(202);
-	}
+	});
 }
 
 // Make modules accessible
@@ -130,11 +161,12 @@ module.exports = {
 				try {
 					// Try to destroy the faulty connection
 					connection.destroy();
-				} finally {
-					// Connection failed
-					onError('Connection to DB failed', err);
-					process.exit(202);
+				} catch(error) {
+					// Attempt failed
 				}
+				// Connection failed
+				onError('Connection to DB failed', err);
+				process.exit(202);
 			} else {
 				msg('DB Connection established', 'log');
 				onSuccess();
@@ -148,18 +180,33 @@ module.exports = {
 	* @requires databaseName to be a string indicating the name of the database to use (or create)
 	* @requires rebuildIfNA bool true if db should be rebuild if not available
 	*/
-	check: function (callback, databaseName = 'launchpad', rebuildIfNA = false) {
-		// Update the databaseName and reconnect
-		dbName = databaseName;
-		updateConnection();
-		// Perform database check
-		if (true) {
-			callback(); // TODO
-		} else {
+	check: function (callback, rebuildIfNA=false) {
+		// Attempt to connect
+		try {
+			// Update the connection
+			updateConnection();
+			// Perform database check
+			query("SELECT * FROM `links` WHERE 1 LIMIT 1", null, function (results) {
+				// If the DB Check was successful, callback
+				callback();
+			}, function (err) {
+				// If some error occurred, check if should rebuild
+				if (rebuildIfNA) {
+					// If rebuild allowed update the user and rebuild
+					msg('DB Check failed, attempting to rebuild', "warn");
+					rebuild(callback);
+				} else {
+					// If not allowed, inform the user and quit
+					msg('DB Check and Rebuild Failed: rebuild not allowed (in prod mode)');
+					process.exit(202);
+				}
+			});
+		} catch(err) {
+			// If something breaks, attemp to rebuild (and/or inform the user)
 			if (rebuildIfNA) {
 				rebuild(callback);
 			} else {
-				msg('DB Rebuild Failed: not allowed (in prod mode)');
+				msg('DB Check and Rebuild Failed: rebuild not allowed (in prod mode)');
 				process.exit(202);
 			}
 		}
