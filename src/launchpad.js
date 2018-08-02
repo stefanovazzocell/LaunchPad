@@ -22,6 +22,7 @@ const dbmanager = require('./scraps/dbmanager'); // Database manager
 const ipresolver = require('./scraps/ipresolver'); // Resolve ip
 const gatekeeper = require('./scraps/gatekeeper'); // Rate limiting
 const server = require('./scraps/serveradmin'); // Server Admin Tools
+const api = require('./scraps/api');
 
 /*
 * Require Settings
@@ -115,29 +116,7 @@ app.post('/api/*', function (req, res) {
 		// Check api version
 		if (req.params[0] === version + '/' || req.params[0] === version) {
 			// Valid version
-			try {
-				switch(req.body.type) {
-					case 'get': // Get a link
-						res.send('getting');
-						break;
-					case 'set': // Creating a new link
-						res.send('setting');
-						break;
-					case 'edit': // Edit a link
-						requestError(res, 'Not action implemented yet');
-						break;
-					case 'stats': // Get stats for a link
-						requestError(res, 'Not action implemented yet');
-						break;
-					default:
-						res.send('ok');
-				}
-			} catch(err) {
-				console.log(err)
-				// Invalid version message
-				res.status(500);
-				res.send({'msg': 'Corrupted request'});
-			}
+			api.api(req, res);
 		} else {
 			// Invalid version message
 			res.status(501);
@@ -161,6 +140,8 @@ app.post('*', function (req, res) {
 
 // Perform checks
 server.checks(dbmanager, function() {
+	// Startup API
+	api.setup(dbmanager.query, server.msg);
 	// Start server
 	app.listen(port);
 	// Log start
