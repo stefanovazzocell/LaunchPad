@@ -32,7 +32,8 @@ function updateConnection() {
 		user: username,
 		password: authPassword,
 		database : dbName,
-		queueLimit: 100
+		multipleStatements: true,
+		queueLimit: 10
 	});
 	msg('DB Connection updated', 'log');
 }
@@ -47,7 +48,8 @@ function rollbackConnection(init=false) {
 		host: hostname,
 		user: username,
 		password: authPassword,
-		queueLimit: 100
+		multipleStatements: true,
+		queueLimit: 1
 	});
 	if (!init) {
 		msg('DB Connection rolled back', 'warn');
