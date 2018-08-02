@@ -98,6 +98,18 @@ function query(query, param=null, onSuccess, onError) {
 }
 
 /*
+* performDbCleanup() - Performs a DB cleanup
+*/
+function performDbCleanup() {
+	query("DELETE FROM `links` WHERE `clicks` <= 0 OR `expiration` <= NOW()", null, function() {
+		setTimeout(performDbCleanup, 600000); // 1000 * 60 * 10
+	}, function (err) {
+		msg('DB Cleanup Failed, retrying in 1 minute', 'warn');
+		setTimeout(performDbCleanup, 60000); // 1000 * 60 * 1
+	})
+}
+
+/*
 * rebuild() - Clears the database and rebuilds it
 *
 * @requires callback to be the callback function
