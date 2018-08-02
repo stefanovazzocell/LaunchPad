@@ -46,22 +46,44 @@ function isAvailable(toCheck, res) {
 }
 
 /*
-* assertTrue(toCheck, checks, res) - Check if isAvailable toCheck produces true and all the functions in array produce true
+* intBetween(number, max, min) - Checks if the number is an int between the given values included
+*
+* @requests number is number to check
+* @requests max is max value
+* @requests max is min value
+* @return bool true if conditions match, false otherwise
+*/
+function intBetween(number, max, min = 1) {
+	return isInteger(number) && number >= min && number <= max;
+}
+
+/*
+* stringBetween(text, max, min) - Checks if the text is has a length between the given values included
+*
+* @requests text is string to check
+* @requests max is max value
+* @requests max is min value
+* @return bool true if conditions match, false otherwise
+*/
+function stringBetween(text, max, min = 50) {
+	return (String(text)).length >= min && (String(text)).length <= max;
+}
+
+/*
+* assertTrue(toCheck, checks, res) - Check if isAvailable toCheck produces true and a check function produces true
 *
 * @requests toCheck is array of variables to check
-* @requests checks is array of functions to check
+* @requests checks is function to check
 * @requests res is a express response
 * @return bool true if all true, false otherwise
 */
 function assertTrue(toCheck, checks, res) {
 	if (isAvailable(toCheck, res)) {
-		for (var i = 0; i < toCheck.length; i++) {
-			if (!toCheck[i]()) {
-				requestError(res);
-				return false;
-			}
+		try {
+			return checks();
+		} catch(err) {
+			return false;
 		}
-		return true;
 	} else {
 		return false
 	}
@@ -78,7 +100,7 @@ function assertTrue(toCheck, checks, res) {
 * @requires res from expressjs' request
 */
 function api_get(req, res) {
-	if (assertTrue([req.body.link], [], res)) {
+	if (assertTrue([req.body.l], function() { return stringBetween(req.body.l, 64, 64); }, res)) {
 		res.send("ok");
 	}
 }
@@ -90,7 +112,13 @@ function api_get(req, res) {
 * @requires res from expressjs' request
 */
 function api_set(req, res) {
-	if (assertTrue([req.body.link, req.body.data, req.body.parameters], [], res)) {
+	if (assertTrue([req.body.l, req.body.c, req.body.e, req.body.d, req.body.p/*, req.body.o*/],
+		function() { return (stringBetween(req.body.l, 64, 64) &&
+							 intBetween(req.body.c, 1000) &&
+							 intBetween(req.body.e, 8760) &&
+							 intBetween(req.body.expiration, 8760) &&
+							 stringBetween(req.body.d, 2048) &&
+							 stringBetween(req.body.p, 512)); }, res)) {
 		res.send("ok");
 	}
 }
@@ -117,7 +145,7 @@ module.exports = {
 	*/
 	api: function(req, res) {
 		try {
-			switch(req.body.type) {
+			switch(req.body.t) {
 				case 'get': // Get a link
 					api_get(req, res);
 					break;
