@@ -13,6 +13,7 @@
 		"edit_invalid": -39,
 		"stats_valid": -2,
 		"stats_invalid": -39,
+		"set_bigDataSize": -500,
 		"api_error": -500
 	},
 	"resetTime": 1,
