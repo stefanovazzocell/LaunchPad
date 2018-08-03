@@ -11,6 +11,8 @@
 		"del_invalid": -39,
 		"edit_valid": -2,
 		"edit_invalid": -39,
+		"stats_valid": -2,
+		"stats_invalid": -39,
 		"api_error": -500
 	},
 	"resetTime": 1,
