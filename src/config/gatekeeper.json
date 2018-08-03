@@ -11,5 +11,6 @@
 	},
 	"resetTime": 1,
 	"banTime": 10,
-	"bantrigger": 40
+	"bantrigger": 40,
+	"SysStatus": 10
 }

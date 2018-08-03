@@ -7,7 +7,7 @@
 */
 
 // Require Config
-const { points, resetTime, banTime, bantrigger } = require('./../config/gatekeeper');
+const { points, resetTime, banTime, bantrigger, SysStatus } = require('./../config/gatekeeper');
 // NOTE: Bantime and ResetTime are in minutes
 
 // Users that are being 
@@ -88,6 +88,40 @@ function resetBan() {
 }
 
 /*
+* SysCheck() - Writes a report for the admin
+*/
+function SysCheck() {
+	// General Status Report
+	var report = '\n==================\n';
+	report += 'Status\n';
+	var users = Object.keys(access);
+	report += 'Access: ' + users.length + ' IPs\n';
+	report += 'Banned: ' + banned.length + ' IPs\n';
+	// Add more stats if isDev
+	if (isDev) {
+		// Log up to 1000 Banned Users
+		report += '==================\n';
+		report += 'Banned\n';
+		report += '[ ';
+		for (var i = ((banned.length < 1001) ? (banned.length - 1) : 999); i >= 0; i--) {
+			report += banned[i] + ', ';
+		}
+		report += ']\n';
+		// Log up to 100 users
+		report += '==================\n';
+		report += 'Users\n';
+		report += '{ ';
+		for (var i = ((users.length < 101) ? (users.length - 1) : 99); i >= 0; i--) {
+			report += '"' + users[i] + '": ' + access[users[i]] + ' , ';
+		}
+		report += '}\n';
+	}
+	report += '==================\n';
+	// Send report to the admin
+	msg('Gatekeeper - SysCheck() - Status Report\n' + report, 'log');
+}
+
+/*
 * check(id, type) - Counts visit and checks if user is allowed
 *
 * @requires id to be a user id string
@@ -99,12 +133,13 @@ function check(type = 'query', req = null, id = 'unknown') {
 	if (req !== null && (id === 'unknown')) {
 		id = getIp(req);
 	}
-	// Increase the counter for user
-	addToUser(id, points[type])
 	// Check if user is banned or maxed
 	if (isBanned(id)) {
 		return false;
-	} else if (isMaxed(id)) {
+	}
+	// Increase the counter for user
+	addToUser(id, points[type]);
+	if (isMaxed(id)) {
 		// Check if it is to be banned
 		if (isToBeBanned(id)) {
 			if (isDev) {
@@ -180,6 +215,12 @@ module.exports = {
 			setInterval(resetAccess, resetTime * 60 * 1000);
 			if (isDev) msg('Started resetAccess interval', 'log');
 		}, (Math.random() * random * 1000));
+		// If is dev and it requires logging, do logging
+		if (isDev && SysStatus > 0) {
+			SysCheck();
+			setInterval(SysCheck, SysStatus * 1000);
+		}
+		// Report completed startup
 		msg('Startup of gatekeeper initiated', 'log');
 	}
 }
