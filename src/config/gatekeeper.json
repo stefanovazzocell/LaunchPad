@@ -7,17 +7,19 @@
 		"get_invalid": -39,
 		"set_valid": -39,
 		"set_invalid": -10,
+		"set_bigDataSize": -500,
 		"del_valid": -2,
 		"del_invalid": -39,
 		"edit_valid": -2,
 		"edit_invalid": -39,
 		"stats_valid": -2,
 		"stats_invalid": -39,
-		"set_bigDataSize": -500,
+		"opt_valid": -2,
+		"opt_invalid": -39,
 		"api_error": -500
 	},
 	"resetTime": 1,
 	"banTime": 10,
 	"bantrigger": 40,
-	"SysStatus": 10
+	"SysStatus": 60
 }
