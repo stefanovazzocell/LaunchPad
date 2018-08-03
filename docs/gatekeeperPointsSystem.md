@@ -11,6 +11,8 @@ Here is a list of gatekeeper.js point system default values:
  -10    | (Not)Creating a new InValid link |
  -500   | API Error* |
 
+ == Note: This is not updated regularly anymore, see json file ==
+
 * API Error means that the user (or an extension in the browser) might have modified the API call. This is a big red flag, it bans the user immediatly
 
 1 minute resettime
