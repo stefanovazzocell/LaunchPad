@@ -150,7 +150,8 @@ function api_set(req, res) {
 							 intBetween(req.body.e, 8760) &&
 							 stringBetween(req.body.d, 2048) &&
 							 stringBetween(req.body.p, 512)); }, req, res)) {
-		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),\'\');',
+		query('DELETE FROM `links` WHERE `clicks` < 1 OR `expiration` <= NOW()\n' + 
+			  'INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),\'\');',
 			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e)],
 			function(results) {
 				// Success
