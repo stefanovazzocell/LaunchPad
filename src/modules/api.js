@@ -10,6 +10,7 @@
 var query;
 var msg;
 var gkCheck;
+var getLocation;
 
 /*
 * Helpers
@@ -115,7 +116,7 @@ function api_get(req, res) {
 				}
 			}, function (errorMsg, error) {
 				// Error
-				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
+				requestError(req, res, 'Woops! Something went wrong, try again later\n' + errorMsg + '\n' + error, false, 500);
 			});
 	}
 }
@@ -196,7 +197,7 @@ function api_del(req, res) {
 						'f': false,
 						'msg': 'Link not found'
 					});
-				} else if (stringBetween(results[1][0]['server'],5120, 5) && JSON.parse(results[1][0]['server'])["d"] === String(req.body.p)) {
+				} else if (stringBetween(results[1][0]['server'],5120, 5) && JSON.parse(results[1][0]['server'])['d'] === String(req.body.p)) {
 					// Update the user credits
 					gkCheck('del_valid', req);
 					// Trigger deletion
@@ -231,7 +232,7 @@ function api_del(req, res) {
 				}
 			}, function (errorMsg, error) {
 				// Error
-				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
+				requestError(req, res, 'Woops! Something went wrong, try again later\n' + errorMsg + '\n' + error, false, 500);
 			});
 	}
 }
@@ -263,7 +264,7 @@ function api_edit(req, res) {
 						'f': false,
 						'msg': 'Link not found'
 					});
-				} else if (stringBetween(results[1][0]['server'],5120, 70) && JSON.parse(results[1][0]['server'])["e"] === String(req.body.p)) {
+				} else if (stringBetween(results[1][0]['server'],5120, 70) && JSON.parse(results[1][0]['server'])['e'] === String(req.body.p)) {
 					// Update the user credits
 					gkCheck('edit_valid', req);
 					// Identify what type of edit it is
@@ -310,7 +311,59 @@ function api_edit(req, res) {
 				}
 			}, function (errorMsg, error) {
 				// Error
-				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
+				requestError(req, res, 'Woops! Something went wrong, try again later\n' + errorMsg + '\n' + error, false, 500);
+			});
+	}
+}
+
+/*
+* api_stats(req, res) - Handle calls to 'stats'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_stats(req, res) {
+	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
+										(stringBetween(req.body.p, 64, 64) ||
+										stringBetween(req.body.p, 0, 0))); }, req, res)) {
+		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
+			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
+			[String(req.body.l)],
+			function(results) {
+				// Success
+				// Check if something was found
+				if (results[1].length < 1) {
+					// Not Found
+					// Update the user credits
+					gkCheck('stats_invalid', req);
+					// Let the user know
+					res.send({
+						'f': false,
+						'msg': 'Link not found'
+					});
+				} else if (stringBetween(results[1][0]['server'],5120, 5) && JSON.parse(results[1][0]['server'])['s'] === String(req.body.p)) {
+					// Update the user credits
+					gkCheck('stats_valid', req);
+					// Return the stats to the user
+					res.send({
+						'f': true,
+						'p': true,
+						's': JSON.parse(results[1][0]['server'])['stats']
+					});
+				} else {
+					// Found but invalid
+					// Update the user credits
+					gkCheck('stats_invalid', req);
+					// Let the user know
+					res.send({
+						'f': true,
+						'p': false,
+						'msg': 'Wrong password'
+					});
+				}
+			}, function (errorMsg, error) {
+				// Error
+				requestError(req, res, 'Woops! Something went wrong, try again later\n' + errorMsg + '\n' + error, false, 500);
 			});
 	}
 }
@@ -318,16 +371,18 @@ function api_edit(req, res) {
 // Make public function accessible
 module.exports = {
 	/*
-	* setup(queryFn, msgFn, gkCheckFn) - Setup local variables
+	* setup(queryFn, msgFn, gkCheckFn, getLocationFn) - Setup local variables
 	*
 	* @requires queryFn to be a database query function
 	* @requires msgFn to be a msg function
 	* @requires gkCheckFn to be gatekeeper's function
+	* @requires getLocationFn to be a function that takes a request and returns an |ISO 3166-1 Alpha 2| location or '??'
 	*/
-	setup: function(queryFn, msgFn, gkCheckFn) {
+	setup: function(queryFn, msgFn, gkCheckFn, getLocationFn) {
 		query = queryFn;
 		msg = msgFn;
 		gkCheck = gkCheckFn;
+		getLocation = getLocationFn;
 	},
 	/*
 	* api(req, res) - Handle API Calls
@@ -351,7 +406,7 @@ module.exports = {
 					api_edit(req, res);
 					break;
 				case 'stats': // Get stats for a link
-					requestError(req, res, 'Not action implemented yet');
+					api_stats(req, res);
 					break;
 				default:
 					res.send('ok');
