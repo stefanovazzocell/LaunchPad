@@ -28,7 +28,8 @@ Create a link
 	"p": "<AES Encrypted Options>",
 	"o": [
 			"<Extra Optional Server Options/Flags**>"
-		]
+		],
+	"bd***": true
 }
 ```
 
@@ -78,4 +79,5 @@ Get a link's stats
 
 `* When a link is expired is removed from the server`
 `** Only for supported versions`
-`*** Allows tracking of `
+`track*** Allows tracking of ip country (optional)`
+`bd*** Allows larger size (optional)`
