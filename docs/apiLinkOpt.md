@@ -26,8 +26,20 @@ Create a link
 	"d": "<AES Encrypted Data>",
 	"p": "<AES Encrypted Options>",
 	"o": [
-			"<Extra Server Options/Flags**>"
+			"<Extra Optional Server Options/Flags**>"
 		]
+}
+```
+
+### DEL
+
+Create a link
+
+```json
+{
+	"t": "del",
+	"l": "<Link Hash>",
+	"p": "<Hashed Password or empty>"
 }
 ```
 
