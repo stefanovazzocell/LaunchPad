@@ -61,7 +61,7 @@ function getRequest(req) {
 * @returns country code string as for |ISO 3166-1 Alpha 2| or '??' if unknown
 */
 function getCfCountry(req) {
-	return req.headers('HTTP_CF_IPCOUNTRY') || '??';
+	return req.headers['HTTP_CF_IPCOUNTRY'] || '??';
 }
 
 // Make public function accessible
