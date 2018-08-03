@@ -1,5 +1,5 @@
 {
 	"dbName": "launchpad",
 	"makeTable": "CREATE TABLE `links` ( `link` char(64) NOT NULL, `data` varchar(2048) NOT NULL, `parameters` varchar(512) NOT NULL, `clicks` int(11) NOT NULL DEFAULT '1', `expiration` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, `server` varchar(5120) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1;",
-	"setPrimary": "ALTER TABLE `links` ADD PRIMARY KEY (`link`);"
+	"setPrimary": "ALTER TABLE `links` ADD PRIMARY KEY (`link`), ADD KEY `clicks` (`clicks`), ADD KEY `expiration` (`expiration`);"
 }
