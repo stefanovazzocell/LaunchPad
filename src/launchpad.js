@@ -129,7 +129,7 @@ app.post('*', function (req, res) {
 // Perform checks
 server.checks(dbmanager, function() {
 	// Startup API
-	api.setup(dbmanager.query, server.msg, gatekeeper.check);
+	api.setup(dbmanager.query, server.msg, gatekeeper.check, ipresolver.getLocation);
 	// Start server
 	app.listen(port);
 	// Log start
