@@ -52,9 +52,11 @@ Edit a link
 	"t": "edit",
 	"l": "<Link Hash>",
 	"p": "<Hashed Password>",
-	"c": "<Optional number of clicks before link is expired*>",
-	"d": "<Optional AES Encrypted Data>",
-	"p": "<Optional AES Encrypted Options>"
+	"e": {
+		"c": "<Optional number of clicks before link is expired*>",
+		"d": "<Optional AES Encrypted Data>",
+		"p": "<Optional AES Encrypted Options>"
+	}
 }
 ```
 
