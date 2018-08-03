@@ -429,6 +429,53 @@ function api_stats(req, res) {
 	}
 }
 
+/*
+* api_opt(req, res) - Handle calls to 'opt'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_opt(req, res) {
+	if (assertTrue(function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
+		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
+			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
+			[String(req.body.l)],
+			function(results) {
+				// Success
+				// Check if something was found
+				if (results[1].length < 1) {
+					// Not Found
+					// Update the user credits
+					gkCheck('opt_invalid', req);
+					// Let the user know
+					res.send({
+						'f': false,
+						'msg': 'Link not found'
+					});
+				} else if (stringBetween(results[1][0]['server'],5120, 5)) {
+					// Update the user credits
+					gkCheck('opt_valid', req);
+					// Prepare to add options
+					var serverOptions = JSON.parse(results[1][0]['server']);
+					var userOptions = [];
+					// Check every option
+					if (serverOptions.hasOwnProperty('e')) userOptions.push('e'); // Edit
+					if (serverOptions.hasOwnProperty('d')) userOptions.push('d'); // Delete
+					if (serverOptions.hasOwnProperty('s')) userOptions.push('s'); // Stats
+					// Return the stats to the user
+					res.send({
+						'f': true,
+						'p': true,
+						'o': userOptions
+					});
+				}
+			}, function (errorMsg, error) {
+				// Error
+				requestError(req, res, 'Woops! Something went wrong, try again later\n' + errorMsg + '\n' + error, false, 500);
+			});
+	}
+}
+
 // Make public function accessible
 module.exports = {
 	/*
@@ -468,6 +515,9 @@ module.exports = {
 					break;
 				case 'stats': // Get stats for a link
 					api_stats(req, res);
+					break;
+				case 'opt': // Get options for a link
+					api_opt(req, res);
 					break;
 				default:
 					res.send('ok');
