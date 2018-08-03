@@ -8,7 +8,7 @@
 
 // Require Dependencies and settings
 var mysql = require('mysql');
-const { dbName, makeTable, setPrimary } = require('./../config/database');
+const { dbName, makeTable, optimizeTable } = require('./../config/database');
 
 // Credentials Storage
 const hostname = 'localhost'; // TODO: Change Me!
@@ -130,7 +130,7 @@ function rebuild(callback) {
 			query(makeTable, null, function () {
 				msg('DB Table Created, attempting to set primary key next', 'log');
 				// Successful
-				query(setPrimary, null, function () {
+				query(optimizeTable, null, function () {
 					msg('DB Table Primary key set, rebuild successful', 'log');
 					// Successful
 					callback();
