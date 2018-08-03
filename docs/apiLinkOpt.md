@@ -9,7 +9,8 @@ Get a link info
 ```json
 {
 	"t": "get",
-	"l": "<Link Hash>"
+	"l": "<Link Hash>",
+	"track***": true
 }
 ```
 
@@ -60,9 +61,21 @@ Edit a link
 }
 ```
 
-"c" and/or ("d" and "p") must be present
+"e"/"c" and/or ("e"/"d" and "e"/"p") must be present
 
+### STATS
+
+Get a link's stats
+
+```json
+{
+	"t": "stats",
+	"l": "<Link Hash>",
+	"p": "<Hashed Password>"
+}
+```
 ---
 
 `* When a link is expired is removed from the server`
 `** Only for supported versions`
+`*** Allows tracking of `
