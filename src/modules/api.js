@@ -141,10 +141,14 @@ function api_set(req, res) {
 			if (stringBetween(req.body.o.d, 64, 64) || stringBetween(req.body.o.d, 0, 0)) {
 				settings['d'] = String(req.body.o.d);
 			}
+			// Check if edit allowed
+			if (stringBetween(req.body.o.e, 64, 64)) {
+				settings['e'] = String(req.body.o.e);
+			}
 			// If some options have been used, save it
 			if (Object.keys(settings).length > 0) options = JSON.stringify(settings);
 		}
-		query('DELETE FROM `links` WHERE `clicks` < 1 OR `expiration` <= NOW();\n' + 
+		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
 			  'INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),?);',
 			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e), options],
 			function(results) {
@@ -177,7 +181,7 @@ function api_del(req, res) {
 	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
 										(stringBetween(req.body.p, 64, 64) ||
 										stringBetween(req.body.p, 0, 0))); }, req, res)) {
-		query('DELETE FROM `links` WHERE `clicks` < 1 OR `expiration` <= NOW();\n' + 
+		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
 			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
 			[String(req.body.l)],
 			function(results) {
@@ -232,6 +236,85 @@ function api_del(req, res) {
 	}
 }
 
+/*
+* api_edit(req, res) - Handle calls to 'edit'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_edit(req, res) {
+	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
+										stringBetween(req.body.p, 64, 64) &&
+										(intBetween(req.body.e.c, 1000) ||
+										 (stringBetween(req.body.e.d, 2048) &&
+										  stringBetween(req.body.e.p, 512)))); }, req, res)) {
+		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
+			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
+			[String(req.body.l)],
+			function(results) {
+				// Success
+				// Check if something was found
+				if (results[1].length < 1) {
+					// Not Found
+					// Update the user credits
+					gkCheck('edit_invalid', req);
+					// Let the user know
+					res.send({
+						'f': false,
+						'msg': 'Link not found'
+					});
+				} else if (stringBetween(results[1][0]['server'],5120, 70) && JSON.parse(results[1][0]['server'])["e"] === String(req.body.p)) {
+					// Update the user credits
+					gkCheck('edit_valid', req);
+					// Identify what type of edit it is
+					var isDataEdit = (stringBetween(req.body.e.d, 2048) && stringBetween(req.body.e.p, 512));
+					var isClicksEdit = intBetween(req.body.e.c, 1000);
+					var queryString = 'UPDATE `links` SET `clicks`=? WHERE `link`=?';
+					var queryData = [parseInt(req.body.e.c) + 1, String(req.body.l)];
+					if (isDataEdit && isClicksEdit) {
+						queryString = 'UPDATE `links` SET `data`=?,`parameters`=?,`clicks`=? WHERE `link`=?';
+						queryData = [String(req.body.e.d), String(req.body.e.p), parseInt(req.body.e.c) + 1, String(req.body.l)];
+					} else if (isDataEdit) {
+						queryString = 'UPDATE `links` SET `data`=?,`parameters`=? WHERE `link`=?';
+						queryData = [String(req.body.e.d), String(req.body.e.p), String(req.body.l)];
+					}
+					// Trigger deletion
+					query(queryString,
+						queryData, function() {
+						// Successful
+						// Send response to user
+						res.send({
+							'f': true,
+							'p': true,
+							'msg': 'Edited Successfully'
+						});
+					}, function() {
+						// Unsuccessful
+						// Let the user know
+						res.send({
+							'f': true,
+							'p': true,
+							'msg': 'Edited Unsuccessfully'
+						});
+					})
+				} else {
+					// Found but invalid
+					// Update the user credits
+					gkCheck('edit_invalid', req);
+					// Let the user know
+					res.send({
+						'f': true,
+						'p': false,
+						'msg': 'Wrong password'
+					});
+				}
+			}, function (errorMsg, error) {
+				// Error
+				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
+			});
+	}
+}
+
 // Make public function accessible
 module.exports = {
 	/*
@@ -265,7 +348,7 @@ module.exports = {
 					api_del(req, res);
 					break;
 				case 'edit': // Edit a link
-					requestError(req, res, 'Not action implemented yet');
+					api_edit(req, res);
 					break;
 				case 'stats': // Get stats for a link
 					requestError(req, res, 'Not action implemented yet');
