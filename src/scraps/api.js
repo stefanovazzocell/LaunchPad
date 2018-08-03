@@ -87,6 +87,7 @@ function assertTrue(toCheck, checks, req, res) {
 		try {
 			return checks();
 		} catch(err) {
+			requestError(req, res);
 			return false;
 		}
 	} else {
@@ -107,8 +108,8 @@ function assertTrue(toCheck, checks, req, res) {
 function api_get(req, res) {
 	if (assertTrue([req.body.l], function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
 		// Query the database
-		query('UPDATE `links` SET `clicks`=`clicks`-1 WHERE `link`=? AND `clicks` >= 0 AND `expiration` > NOW();\n' +
-			  'SELECT `data`, `parameters` FROM `links` WHERE `link`=? AND `clicks` >= 0 AND `expiration` > NOW();',
+		query('UPDATE `links` SET `clicks`=`clicks`-1 WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();\n' +
+			  'SELECT `data`, `parameters` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
 			[String(req.body.l), String(req.body.l)],
 			function (results) {
 				if (results[1].length < 1) {
@@ -144,13 +145,8 @@ function api_set(req, res) {
 							 intBetween(req.body.e, 8760) &&
 							 stringBetween(req.body.d, 2048) &&
 							 stringBetween(req.body.p, 512)); }, req, res)) {
-		var expirationDate = new Date();
-		expirationDate.setMinutes(0, 0, 0); // Minutes, Seconds, Milliseconds
-		expirationDate.setHours(expirationDate.getHours() + parseInt(req.body.e));
-		var eDateStr = expirationDate.toISOString().slice(0, 19).replace('T', ' ');
-		// Query the database
-		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,?,\'\');',
-			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c), eDateStr],
+		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),\'\');',
+			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e)],
 			function(results) {
 				// Success, let the user know
 				res.send({
