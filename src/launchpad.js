@@ -18,11 +18,11 @@ const app = express();
 * Require custom modules
 */
 
-const dbmanager = require('./scraps/dbmanager'); // Database manager
-const ipresolver = require('./scraps/ipresolver'); // Resolve ip
-const gatekeeper = require('./scraps/gatekeeper'); // Rate limiting
-const server = require('./scraps/serveradmin'); // Server Admin Tools
-const api = require('./scraps/api');
+const dbmanager = require('./modules/dbmanager'); // Database manager
+const ipresolver = require('./modules/ipresolver'); // Resolve ip
+const gatekeeper = require('./modules/gatekeeper'); // Rate limiting
+const server = require('./modules/serveradmin'); // Server Admin Tools
+const api = require('./modules/api');
 
 /*
 * Require Settings
