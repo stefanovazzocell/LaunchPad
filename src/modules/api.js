@@ -146,6 +146,10 @@ function api_set(req, res) {
 			if (stringBetween(req.body.o.e, 64, 64)) {
 				settings['e'] = String(req.body.o.e);
 			}
+			// Check if stats allowed
+			if (stringBetween(req.body.o.s, 64, 64) || stringBetween(req.body.o.s, 0, 0)) {
+				settings['s'] = String(req.body.o.s);
+			}
 			// If some options have been used, save it
 			if (Object.keys(settings).length > 0) options = JSON.stringify(settings);
 		}
