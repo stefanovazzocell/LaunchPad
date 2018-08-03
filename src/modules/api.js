@@ -90,9 +90,13 @@ function assertTrue(checks, req, res) {
 */
 function api_get(req, res) {
 	if (assertTrue(function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
+		// Check if tracking requested
+		var trackUser = (req.body.track !== undefined && req.body.track === true);
+		var dbQueryRequested = '`data`, `parameters`';
+		if (trackUser) dbQueryRequested += ', `server`';
 		// Query the database
 		query('UPDATE `links` SET `clicks`=`clicks`-1 WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();\n' +
-			  'SELECT `data`, `parameters` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
+			  'SELECT ' + dbQueryRequested + ' FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
 			[String(req.body.l), String(req.body.l)],
 			function (results) {
 				if (results[1].length < 1) {
@@ -107,12 +111,46 @@ function api_get(req, res) {
 					// Found
 					// Update the user credits
 					gkCheck('get_valid', req);
-					// Send response to user
-					res.send({
-						'f': true,
-						'd': results[1][0]['data'],
-						'p': results[1][0]['parameters']
-					});
+					// Check if tracking required
+					if (trackUser && stringBetween(results[1][0]['server'],5120, 5) && JSON.parse(results[1][0]['server'])['t'] !== undefined) {
+						// Track
+						var serverResponse = JSON.parse(results[1][0]['server']);
+						// Get country
+						var userCountry = getLocation(req);
+						// Search country
+						var currentValue = serverResponse['t'][userCountry];
+						if (intBetween(currentValue, 1000, 1)) {
+							// If exists, add to it
+							currentValue++;
+						} else currentValue = 1; // Otherwise start from 1
+						// Insert the value back
+						serverResponse['t'][userCountry] = currentValue;
+						// Query the DB
+						query('UPDATE `links` SET `server`=? WHERE `link`=?',
+							[JSON.stringify(currentValue), String(req.body.l)],
+							function(updateResults) {
+								res.send({
+									'f': true,
+									'd': results[1][0]['data'],
+									'p': results[1][0]['parameters']
+									});
+								},
+							function(updateError, updateErr) {
+								res.send({
+									'f': true,
+									'd': results[1][0]['data'],
+									'p': results[1][0]['parameters']
+								});
+							});
+					} else {
+						// No tracking
+						// Send response to user
+						res.send({
+							'f': true,
+							'd': results[1][0]['data'],
+							'p': results[1][0]['parameters']
+						});
+					}
 				}
 			}, function (errorMsg, error) {
 				// Error
@@ -142,13 +180,15 @@ function api_set(req, res) {
 			if (stringBetween(req.body.o.d, 64, 64) || stringBetween(req.body.o.d, 0, 0)) {
 				settings['d'] = String(req.body.o.d);
 			}
-			// Check if edit allowed
-			if (stringBetween(req.body.o.e, 64, 64)) {
-				settings['e'] = String(req.body.o.e);
-			}
 			// Check if stats allowed
-			if (stringBetween(req.body.o.s, 64, 64) || stringBetween(req.body.o.s, 0, 0)) {
+			if ((stringBetween(req.body.o.s, 64, 64) || stringBetween(req.body.o.s, 0, 0)) &&
+				stringBetween(req.body.o.e, 64, 64) === false &&
+				intBetween(req.body.c, 1000, 10)) {
 				settings['s'] = String(req.body.o.s);
+				settings['t'] = {};
+				intBetween(req.body.c, 1000);
+			} else if (stringBetween(req.body.o.e, 64, 64)) { // Check if edit allowed
+				settings['e'] = String(req.body.o.e);
 			}
 			// If some options have been used, save it
 			if (Object.keys(settings).length > 0) options = JSON.stringify(settings);
@@ -352,7 +392,7 @@ function api_stats(req, res) {
 					res.send({
 						'f': true,
 						'p': true,
-						's': JSON.parse(results[1][0]['server'])['stats']
+						's': JSON.parse(results[1][0]['server'])['t']
 					});
 				} else {
 					// Found but invalid
