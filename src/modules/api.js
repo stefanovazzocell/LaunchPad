@@ -127,7 +127,7 @@ function api_get(req, res) {
 						serverResponse['t'][userCountry] = currentValue;
 						// Query the DB
 						query('UPDATE `links` SET `server`=? WHERE `link`=?',
-							[JSON.stringify(currentValue), String(req.body.l)],
+							[JSON.stringify(serverResponse), String(req.body.l)],
 							function(updateResults) {
 								res.send({
 									'f': true,
@@ -166,15 +166,32 @@ function api_get(req, res) {
 * @requires res from expressjs' request
 */
 function api_set(req, res) {
-	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
+	var maxDataSize = 2048;
+	// Check if big data
+	var bigDataSize = (req.body.bd !== undefined && req.body.bd === true);
+	var bdchecks = true;
+	// If is bigdata
+	if (bigDataSize) {
+		// Ban user (but still perform task)
+		gkCheck('set_bigDataSize', req);
+		// Perform checks
+		bdchecks = assertTrue(function () {
+			return (intBetween(req.body.e, 1) && // Limit to 1 hour
+					intBetween(req.body.c, 1));  // Limit to 1 click
+		});
+		if (bdchecks) {
+			maxDataSize = 55000; // If accepted, increase max size
+		}
+	}
+	if (bdchecks && assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
 										intBetween(req.body.c, 1000) &&
 										intBetween(req.body.e, 8760) &&
-										stringBetween(req.body.d, 2048) &&
+										stringBetween(req.body.d, maxDataSize) &&
 										stringBetween(req.body.p, 512)); }, req, res)) {
 		// Prepare server options
 		var options = '';
-		// Check if user requires anything
-		if (req.body.o !== undefined && typeof req.body.o === 'object') {
+		// Check if user requires special options (Limitation: bigDataSize must be disabled)
+		if (bigDataSize === false && req.body.o !== undefined && typeof req.body.o === 'object') {
 			var settings = {};
 			// Check if del allowed
 			if (stringBetween(req.body.o.d, 64, 64) || stringBetween(req.body.o.d, 0, 0)) {
