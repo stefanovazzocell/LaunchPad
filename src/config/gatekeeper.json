@@ -3,11 +3,13 @@
 		"start": 201,
 		"query": -1,
 		"getReq": -100,
-		"validLink": -2,
-		"invalidLink": -39,
-		"validCreateLink": -39,
-		"invalidCreateLink": -10,
-		"apiError": -500
+		"get_valid": -2,
+		"get_invalid": -39,
+		"set_valid": -39,
+		"set_invalid": -10,
+		"del_valid": -2,
+		"del_invalid": -39,
+		"api_error": -500
 	},
 	"resetTime": 1,
 	"banTime": 10,
