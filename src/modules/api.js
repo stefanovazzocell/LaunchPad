@@ -26,7 +26,7 @@ var gkCheck;
 */
 function requestError(req, res, msg='Something is wrong with your request, try refreshing the page', apiError=true, errorStatus=400) {
 	// Request does not match API standards
-	if (apiError) gkCheck('apiError', req);
+	if (apiError) gkCheck('api_error', req);
 	res.status(errorStatus);
 	res.send({'msg': msg});
 }
@@ -97,7 +97,7 @@ function api_get(req, res) {
 				if (results[1].length < 1) {
 					// Not Found
 					// Update the user credits
-					gkCheck('invalidLink', req);
+					gkCheck('get_invalid', req);
 					// Let the user know
 					res.send({
 						'f': false
@@ -105,7 +105,7 @@ function api_get(req, res) {
 				} else {
 					// Found
 					// Update the user credits
-					gkCheck('validLink', req);
+					gkCheck('get_valid', req);
 					// Send response to user
 					res.send({
 						'f': true,
@@ -114,6 +114,7 @@ function api_get(req, res) {
 					});
 				}
 			}, function (errorMsg, error) {
+				// Error
 				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
 			});
 	}
@@ -131,14 +132,25 @@ function api_set(req, res) {
 										intBetween(req.body.e, 8760) &&
 										stringBetween(req.body.d, 2048) &&
 										stringBetween(req.body.p, 512)); }, req, res)) {
-		if ()
+		// Prepare server options
+		var options = '';
+		// Check if user requires anything
+		if (req.body.o !== undefined && typeof req.body.o === 'object') {
+			var settings = {};
+			// Check if del allowed
+			if (stringBetween(req.body.o.d, 64, 64) || stringBetween(req.body.o.d, 0, 0)) {
+				settings['d'] = String(req.body.o.d);
+			}
+			// If some options have been used, save it
+			if (Object.keys(settings).length > 0) options = JSON.stringify(settings);
+		}
 		query('DELETE FROM `links` WHERE `clicks` < 1 OR `expiration` <= NOW();\n' + 
-			  'INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),\'\');',
-			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e)],
+			  'INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),?);',
+			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e), options],
 			function(results) {
 				// Success
 				// Update the user credits
-				gkCheck('validCreateLink', req);
+				gkCheck('set_valid', req);
 				// Let the user know
 				res.send({
 					'a': true
@@ -146,11 +158,76 @@ function api_set(req, res) {
 			}, function(errorMsg, error) {
 				// Link not available
 				// Update the user credits
-				gkCheck('invalidCreateLink', req);
+				gkCheck('set_invalid', req);
 				// Let the user know
 				res.send({
 					'a': false
 				});
+			});
+	}
+}
+
+/*
+* api_del(req, res) - Handle calls to 'del'
+*
+* @requires req from expressjs' request
+* @requires res from expressjs' request
+*/
+function api_del(req, res) {
+	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
+										(stringBetween(req.body.p, 64, 64) ||
+										stringBetween(req.body.p, 0, 0))); }, req, res)) {
+		query('DELETE FROM `links` WHERE `clicks` < 1 OR `expiration` <= NOW();\n' + 
+			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
+			[String(req.body.l)],
+			function(results) {
+				// Success
+				// Check if something was found
+				if (results[1].length < 1) {
+					// Not Found
+					// Update the user credits
+					gkCheck('del_invalid', req);
+					// Let the user know
+					res.send({
+						'f': false,
+						'msg': 'Link not found'
+					});
+				} else if (stringBetween(results[1][0]['server'],5120, 5) && JSON.parse(results[1][0]['server'])["d"] === String(req.body.p)) {
+					// Update the user credits
+					gkCheck('del_valid', req);
+					// Trigger deletion
+					query('DELETE FROM `links` WHERE `link`=?;',
+						[String(req.body.l)], function() {
+						// Successful
+						// Send response to user
+						res.send({
+							'f': true,
+							'p': true,
+							'msg': 'Deleted Successfully'
+						});
+					}, function() {
+						// Unsuccessful
+						// Let the user know
+						res.send({
+							'f': true,
+							'p': true,
+							'msg': 'Deleted Unsuccessfully'
+						});
+					})
+				} else {
+					// Found but invalid
+					// Update the user credits
+					gkCheck('del_invalid', req);
+					// Let the user know
+					res.send({
+						'f': true,
+						'p': false,
+						'msg': 'Wrong password'
+					});
+				}
+			}, function (errorMsg, error) {
+				// Error
+				requestError(req, res, "Woops! Something went wrong, try again later\n" + errorMsg + "\n" + error, false, 500);
 			});
 	}
 }
@@ -185,7 +262,7 @@ module.exports = {
 					api_set(req, res);
 					break;
 				case 'del': // Delete a link
-					requestError(req, res, 'Not action implemented yet');
+					api_del(req, res);
 					break;
 				case 'edit': // Edit a link
 					requestError(req, res, 'Not action implemented yet');
