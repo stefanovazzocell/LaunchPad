@@ -33,7 +33,7 @@ Create a link
 
 ### DEL
 
-Create a link
+Delete a link
 
 ```json
 {
@@ -42,6 +42,23 @@ Create a link
 	"p": "<Hashed Password or empty>"
 }
 ```
+
+### EDIT
+
+Edit a link
+
+```json
+{
+	"t": "edit",
+	"l": "<Link Hash>",
+	"p": "<Hashed Password>",
+	"c": "<Optional number of clicks before link is expired*>",
+	"d": "<Optional AES Encrypted Data>",
+	"p": "<Optional AES Encrypted Options>"
+}
+```
+
+"c" and/or ("d" and "p") must be present
 
 ---
 
