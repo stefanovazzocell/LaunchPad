@@ -114,11 +114,16 @@ function api_get(req, res) {
 			function (results) {
 				if (results[1].length < 1) {
 					// Not Found
+					// Update the user credits
+					gkCheck('invalidLink', req);
+					// Let the user know
 					res.send({
 						'f': false
 					});
 				} else {
 					// Found
+					// Update the user credits
+					gkCheck('validLink', req);
 					// Send response to user
 					res.send({
 						'f': true,
@@ -148,12 +153,18 @@ function api_set(req, res) {
 		query('INSERT INTO `links`(`link`, `data`, `parameters`, `clicks`, `expiration`, `server`) VALUES (?,?,?,?,DATE_ADD(NOW(), INTERVAL ? HOUR),\'\');',
 			[String(req.body.l), String(req.body.d), String(req.body.p), parseInt(req.body.c) + 1, parseInt(req.body.e)],
 			function(results) {
-				// Success, let the user know
+				// Success
+				// Update the user credits
+				gkCheck('validCreateLink', req);
+				// Let the user know
 				res.send({
 					'a': true
 				});
 			}, function(errorMsg, error) {
 				// Link not available
+				// Update the user credits
+				gkCheck('invalidCreateLink', req);
+				// Let the user know
 				res.send({
 					'a': false
 				});
