@@ -89,7 +89,7 @@ function assertTrue(checks, req, res) {
 * @requires res from expressjs' request
 */
 function api_get(req, res) {
-	if (assertTrue(function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
+	if (assertTrue(function() { return stringBetween(req.body.l, 88, 88); }, req, res)) {
 		// Check if tracking requested
 		var trackUser = (req.body.track !== undefined && req.body.track === true);
 		var dbQueryRequested = '`data`, `parameters`';
@@ -174,16 +174,13 @@ function api_set(req, res) {
 	if (bigDataSize) {
 		// Ban user (but still perform task)
 		gkCheck('set_bigDataSize', req);
-		// Perform checks
-		bdchecks = assertTrue(function () {
-			return (intBetween(req.body.e, 1) && // Limit to 1 hour
-					intBetween(req.body.c, 1));  // Limit to 1 click
-		});
-		if (bdchecks) {
-			maxDataSize = 55000; // If accepted, increase max size
-		}
+		// Set limits on clicks and expiration
+		req.body.c = 1;
+		req.body.e = 1;
+		// Increase max size
+		maxDataSize = 55000;
 	}
-	if (bdchecks && assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
+	if (assertTrue(function() { return (stringBetween(req.body.l, 88, 88) &&
 										intBetween(req.body.c, 1000) &&
 										intBetween(req.body.e, 8760) &&
 										stringBetween(req.body.d, maxDataSize) &&
@@ -194,17 +191,17 @@ function api_set(req, res) {
 		if (bigDataSize === false && req.body.o !== undefined && typeof req.body.o === 'object') {
 			var settings = {};
 			// Check if del allowed
-			if (stringBetween(req.body.o.d, 64, 64) || stringBetween(req.body.o.d, 0, 0)) {
+			if (stringBetween(req.body.o.d, 88, 88) || stringBetween(req.body.o.d, 0, 0)) {
 				settings['d'] = String(req.body.o.d);
 			}
 			// Check if stats allowed
-			if ((stringBetween(req.body.o.s, 64, 64) || stringBetween(req.body.o.s, 0, 0)) &&
-				stringBetween(req.body.o.e, 64, 64) === false &&
+			if ((stringBetween(req.body.o.s, 88, 88) || stringBetween(req.body.o.s, 0, 0)) &&
+				stringBetween(req.body.o.e, 88, 88) === false &&
 				intBetween(req.body.c, 1000, 10)) {
 				settings['s'] = String(req.body.o.s);
 				settings['t'] = {};
 				intBetween(req.body.c, 1000);
-			} else if (stringBetween(req.body.o.e, 64, 64)) { // Check if edit allowed
+			} else if (stringBetween(req.body.o.e, 88, 88)) { // Check if edit allowed
 				settings['e'] = String(req.body.o.e);
 			}
 			// If some options have been used, save it
@@ -240,8 +237,8 @@ function api_set(req, res) {
 * @requires res from expressjs' request
 */
 function api_del(req, res) {
-	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
-										(stringBetween(req.body.p, 64, 64) ||
+	if (assertTrue(function() { return (stringBetween(req.body.l, 88, 88) &&
+										(stringBetween(req.body.p, 88, 88) ||
 										stringBetween(req.body.p, 0, 0))); }, req, res)) {
 		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
 			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
@@ -305,8 +302,8 @@ function api_del(req, res) {
 * @requires res from expressjs' request
 */
 function api_edit(req, res) {
-	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
-										stringBetween(req.body.p, 64, 64) &&
+	if (assertTrue(function() { return (stringBetween(req.body.l, 88, 88) &&
+										stringBetween(req.body.p, 88, 88) &&
 										(intBetween(req.body.e.c, 1000) ||
 										 (stringBetween(req.body.e.d, 2048) &&
 										  stringBetween(req.body.e.p, 512)))); }, req, res)) {
@@ -384,8 +381,8 @@ function api_edit(req, res) {
 * @requires res from expressjs' request
 */
 function api_stats(req, res) {
-	if (assertTrue(function() { return (stringBetween(req.body.l, 64, 64) &&
-										(stringBetween(req.body.p, 64, 64) ||
+	if (assertTrue(function() { return (stringBetween(req.body.l, 88, 88) &&
+										(stringBetween(req.body.p, 88, 88) ||
 										stringBetween(req.body.p, 0, 0))); }, req, res)) {
 		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
 			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
@@ -436,7 +433,7 @@ function api_stats(req, res) {
 * @requires res from expressjs' request
 */
 function api_opt(req, res) {
-	if (assertTrue(function() { return stringBetween(req.body.l, 64, 64); }, req, res)) {
+	if (assertTrue(function() { return stringBetween(req.body.l, 88, 88); }, req, res)) {
 		query('DELETE FROM `links` WHERE `clicks` < 2 OR `expiration` <= NOW();\n' + 
 			  'SELECT `server` FROM `links` WHERE `link`=? AND `clicks` > 0 AND `expiration` > NOW();',
 			[String(req.body.l)],
