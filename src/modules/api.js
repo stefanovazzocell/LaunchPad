@@ -520,7 +520,8 @@ module.exports = {
 					api_opt(req, res);
 					break;
 				default:
-					res.send('ok');
+					// Request does not match API standards
+					requestError(req, res);
 			}
 		} catch(err) {
 			// Request does not match API standards
