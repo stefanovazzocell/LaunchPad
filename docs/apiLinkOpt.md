@@ -75,6 +75,17 @@ Get a link's stats
 	"p": "<Hashed Password>"
 }
 ```
+
+### OPT
+
+Get a link's options
+
+```json
+{
+	"t": "opt",
+	"l": "<Link Hash>"
+}
+```
 ---
 
 `* When a link is expired is removed from the server`
