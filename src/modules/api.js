@@ -462,10 +462,9 @@ function api_opt(req, res) {
 					// if (serverOptions.hasOwnProperty('e') && String(serverOptions['e']).length === 0) userOptions.push('_e'); // Public Edit
 					if (serverOptions.hasOwnProperty('d') && String(serverOptions['e']).length === 0) userOptions.push('_d'); // Public Delete
 					if (serverOptions.hasOwnProperty('s') && String(serverOptions['e']).length === 0) userOptions.push('_s'); // Public Stats
-					// Return the stats to the user
+					// Return the opts to the user
 					res.send({
 						'f': true,
-						'p': true,
 						'o': userOptions
 					});
 				}
