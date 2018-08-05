@@ -460,8 +460,8 @@ function api_opt(req, res) {
 					if (serverOptions.hasOwnProperty('d')) userOptions.push('d'); // Delete
 					if (serverOptions.hasOwnProperty('s')) userOptions.push('s'); // Stats
 					// if (serverOptions.hasOwnProperty('e') && String(serverOptions['e']).length === 0) userOptions.push('_e'); // Public Edit
-					if (serverOptions.hasOwnProperty('d') && String(serverOptions['e']).length === 0) userOptions.push('_d'); // Public Delete
-					if (serverOptions.hasOwnProperty('s') && String(serverOptions['e']).length === 0) userOptions.push('_s'); // Public Stats
+					if (serverOptions.hasOwnProperty('d') && String(serverOptions['d']).length === 0) userOptions.push('_d'); // Public Delete
+					if (serverOptions.hasOwnProperty('s') && String(serverOptions['s']).length === 0) userOptions.push('_s'); // Public Stats
 					// Return the opts to the user
 					res.send({
 						'f': true,
