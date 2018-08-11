@@ -449,7 +449,7 @@ function api_opt(req, res) {
 						'f': false,
 						'msg': 'Link not found'
 					});
-				} else if (stringBetween(results[1][0]['server'],5120, 0)) {
+				} else if (stringBetween(results[1][0]['server'],5120, 5)) {
 					// Update the user credits
 					gkCheck('opt_valid', req);
 					// Prepare to add options
@@ -466,6 +466,14 @@ function api_opt(req, res) {
 					res.send({
 						'f': true,
 						'o': userOptions
+					});
+				} else {
+					// Update the user credits
+					gkCheck('opt_valid', req);
+					// Return the opts to the user
+					res.send({
+						'f': true,
+						'o': []
 					});
 				}
 			}, function (errorMsg, error) {
