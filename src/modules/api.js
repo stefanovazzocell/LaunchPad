@@ -449,7 +449,7 @@ function api_opt(req, res) {
 						'f': false,
 						'msg': 'Link not found'
 					});
-				} else if (stringBetween(results[1][0]['server'],5120, 5)) {
+				} else if (stringBetween(results[1][0]['server'],5120, 0)) {
 					// Update the user credits
 					gkCheck('opt_valid', req);
 					// Prepare to add options
