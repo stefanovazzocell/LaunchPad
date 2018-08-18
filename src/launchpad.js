@@ -28,7 +28,7 @@ const api = require('./modules/api');
 * Require Settings
 */
 
-var { port, version } = require('./config/general');
+var { port, version, headers } = require('./config/general');
 
 /*
 * Perform initial checks
@@ -49,15 +49,15 @@ app.use(bodyParser.json());
 */
 app.use(function (req, res, next) {
 	// If the server is in development
-	if (server.isDev) {
+	if (server.isDev && headers['active']) {
 		// Allow any origin
-		res.setHeader('Access-Control-Allow-Origin', '*');
+		res.setHeader('Access-Control-Allow-Origin', headers['Origin']);
 		// Allow GET and POST
 		res.setHeader('Access-Control-Allow-Methods', 'POST');
 		// Disable cookies
 		res.setHeader('Access-Control-Allow-Credentials', false);
 		// Allow given Headers
-		res.header('Access-Control-Allow-Headers', '*');
+		res.header('Access-Control-Allow-Headers', headers['Headers']);
 	}
 	// Pass to next layer of middleware
 	next();
