@@ -248,6 +248,10 @@ module.exports = {
 			SysCheck();
 			setInterval(SysCheck, SysStatus * 1000);
 		}
+		// Give warning if is in production and bypass is enabled
+		if (bypass['enabled'] && !isDev) {
+			msg('Bypass feature is enabled', 'warning');
+		} 
 		// Report completed startup
 		msg('Startup of gatekeeper initiated', 'log');
 	}
