@@ -7,7 +7,7 @@
 */
 
 // Require Config
-const { points, resetTime, banTime, bantrigger, SysStatus } = require('./../config/gatekeeper');
+const { points, resetTime, banTime, bantrigger, SysStatus, bypass } = require('./../config/gatekeeper');
 // NOTE: Bantime and ResetTime are in minutes
 
 // Users that are being 
@@ -88,6 +88,28 @@ function resetBan() {
 }
 
 /*
+* checkBypass(ip, query) -Checks if IP has special treatment
+*
+* @requires ip String to be valid ip to check
+* @requires query String to be valid query type
+*/
+function checkBypass(ip = 'undefined', query = 'start') {
+	// Check if the bypass is enabled, and query is valid
+	if (bypass['enabled'] && bypass['types'].includes(query)) {
+		// Search if IP match
+		for (var i = 0; i < bypass['ips'].length; i++) {
+			// Check if valid
+			if ((new RegExp(bypass['ips'][i])).test(ip)) {
+				// If found, return new value
+				return bypass['ips']['newpoints'];
+			}
+		}
+	}
+	// If not enabled or not found, ignore
+	return false;
+}
+
+/*
 * SysCheck() - Writes a report for the admin
 */
 function SysCheck() {
@@ -137,8 +159,14 @@ function check(type = 'query', req = null, id = 'unknown') {
 	if (isBanned(id)) {
 		return false;
 	}
-	// Increase the counter for user
-	addToUser(id, points[type]);
+	// Check if bypass is required
+	if (checkBypass(id, type)) {
+		// IF SO, custom points
+		addToUser(id, checkBypass(id, type));
+	} else {
+		// IF NOT, Increase the counter for user
+		addToUser(id, points[type]);
+	}
 	if (isMaxed(id)) {
 		// Check if it is to be banned
 		if (isToBeBanned(id)) {
