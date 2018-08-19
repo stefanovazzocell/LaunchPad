@@ -21,5 +21,18 @@
 	"resetTime": 1,
 	"banTime": 10,
 	"bantrigger": 40,
-	"SysStatus": 60
+	"SysStatus": 60,
+	"bypass": {
+		"enabled": false,
+		"ips": [
+			"172.30.1.10",
+			"172.16.0.",
+			"192.168.",
+			"10."
+		],
+		"types": [
+			"set_bigDataSize"
+		],
+		"newpoints": -39
+	}
 }
