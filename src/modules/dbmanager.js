@@ -8,12 +8,12 @@
 
 // Require Dependencies and settings
 var mysql = require('mysql');
-const { dbName, makeTable, optimizeTable } = require('./../config/database');
+const { credentials, dbName } = require('./../config/database');
 
 // Credentials Storage
-const hostname = 'localhost'; // TODO: Change Me!
-const username = 'root';      // TODO: Change Me!
-const authPassword = 'root';  // TODO: Change Me!
+const hostname = credentials['hostname'];
+const username = credentials['username'];
+const authPassword = credentials['authPassword'];
 
 // Prepare connections pool variable
 var dbConnectionsPool;
@@ -127,10 +127,10 @@ function rebuild(callback) {
 			// Update the Connection
 			updateConnection();
 			// Build Table and set permissions
-			query(makeTable, null, function () {
+			query("CREATE TABLE `links` ( `link` char(88) NOT NULL, `data` varchar(55000) NOT NULL, `parameters` varchar(512) NOT NULL, `clicks` int(11) NOT NULL DEFAULT '1', `expiration` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, `server` varchar(5120) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1;", null, function () {
 				msg('DB Table Created, attempting to set primary key next', 'log');
 				// Successful
-				query(optimizeTable, null, function () {
+				query("ALTER TABLE `links` ADD PRIMARY KEY (`link`), ADD KEY `clicks` (`clicks`), ADD KEY `expiration` (`expiration`);", null, function () {
 					msg('DB Table Primary key set, rebuild successful', 'log');
 					// Successful
 					callback();

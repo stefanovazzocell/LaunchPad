@@ -1,5 +1,8 @@
 {
-	"dbName": "launchpad",
-	"makeTable": "CREATE TABLE `links` ( `link` char(88) NOT NULL, `data` varchar(55000) NOT NULL, `parameters` varchar(512) NOT NULL, `clicks` int(11) NOT NULL DEFAULT '1', `expiration` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, `server` varchar(5120) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1;",
-	"optimizeTable": "ALTER TABLE `links` ADD PRIMARY KEY (`link`), ADD KEY `clicks` (`clicks`), ADD KEY `expiration` (`expiration`);"
+	"credentials": {
+		"username": "localhost",
+		"username": "root",
+		"password": "root"
+	},
+	"dbName": "launchpad"
 }
