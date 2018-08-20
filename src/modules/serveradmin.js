@@ -83,7 +83,7 @@ module.exports = {
 	*/
 	msg: msg,
 	/*
-	* checks(db) - Performs multiple systems checks and tries to resolve issues
+	* checks(db, callback) - Performs multiple systems checks and tries to resolve issues
 	*
 	* @requires db dbmanager used to check and fix db
 	* @requires callback to be the callback function
@@ -95,8 +95,8 @@ module.exports = {
 		db.connectionCheck(msg, function() {
 			// Check the database
 			db.check(function () {
-				msg('DB Cleanup scheduled', 'log');
 				db.performDbCleanup();
+				msg('DB Cleanup scheduled', 'log');
 				callback();
 			}, modeIsDev());
 		}, function(message, error) {
