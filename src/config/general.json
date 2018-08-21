@@ -1,6 +1,7 @@
 {
 	"port": 8080,
 	"version": "000",
+	"forceNS": false,
 	"headers": {
 		"active": false,
 		"Origin": "*",

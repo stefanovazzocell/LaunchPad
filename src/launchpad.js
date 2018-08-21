@@ -28,7 +28,7 @@ const api = require('./modules/api');
 * Require Settings
 */
 
-var { port, version, headers } = require('./config/general');
+var { port, version, forceNS, headers } = require('./config/general');
 
 /*
 * Perform initial checks
@@ -86,7 +86,7 @@ app.post('/', function (req, res) {
 // Is secure?
 app.post('/secure/', function (req, res) {
 	if (gatekeeper.autocheck(req, res)) {
-		if (server.isDev) {
+		if (server.isDev || forceNS) {
 			// Server is in development mode
 			res.send({'secure': 'false', 'msg': 'The server is not secure; avoid using the service at this moment'});
 		} else {
