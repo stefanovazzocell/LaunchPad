@@ -97,7 +97,7 @@ function checkBypass(ip = 'undefined', query = 'start') {
 	// Check if the bypass is enabled, and query is valid
 	if (bypass['enabled'] && bypass['types'].includes(query)) {
 		// Search if IP match
-		for (var i = 0; i < bypass['ips'].length; i++) {
+		for (let i = 0; i < bypass['ips'].length; i++) {
 			// Check if valid
 			if ((new RegExp(bypass['ips'][i])).test(ip)) {
 				// If found, return new value
@@ -125,7 +125,7 @@ function SysCheck() {
 		report += '==================\n';
 		report += 'Banned\n';
 		report += '[ ';
-		for (var i = ((banned.length < 1001) ? (banned.length - 1) : 999); i >= 0; i--) {
+		for (let i = ((banned.length < 1001) ? (banned.length - 1) : 999); i >= 0; i--) {
 			report += banned[i] + ', ';
 		}
 		report += ']\n';
@@ -133,7 +133,7 @@ function SysCheck() {
 		report += '==================\n';
 		report += 'Users\n';
 		report += '{ ';
-		for (var i = ((users.length < 101) ? (users.length - 1) : 99); i >= 0; i--) {
+		for (let i = ((users.length < 101) ? (users.length - 1) : 99); i >= 0; i--) {
 			report += '"' + users[i] + '": ' + access[users[i]] + ' , ';
 		}
 		report += '}\n';
