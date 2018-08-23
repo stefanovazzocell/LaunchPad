@@ -11,6 +11,7 @@ var query;
 var msg;
 var gkCheck;
 var getLocation;
+const { allowBigDataSize } = require('./../config/api');
 
 /*
 * Helpers
@@ -169,16 +170,21 @@ function api_set(req, res) {
 	var maxDataSize = 2048;
 	// Check if big data
 	var bigDataSize = (req.body.bd !== undefined && req.body.bd === true);
-	var bdchecks = true;
 	// If is bigdata
 	if (bigDataSize) {
 		// Ban user (but still perform task)
 		gkCheck('set_bigDataSize', req);
-		// Set limits on clicks and expiration
-		req.body.c = 1;
-		req.body.e = 1;
-		// Increase max size
-		maxDataSize = 55000;
+		// If not allowed
+		if (!allowBigDataSize) {
+			// Disable
+			bigDataSize = false;
+		} else {
+			// Set limits on clicks and expiration
+			req.body.c = 1;
+			req.body.e = 1;
+			// Increase max size
+			maxDataSize = 55000;
+		}
 	}
 	if (assertTrue(function() { return (stringBetween(req.body.l, 88, 88) &&
 										intBetween(req.body.c, 1000) &&
